@@ -4,6 +4,7 @@ namespace LexicalAnalyzer;
 public class LexicalAnalyzer
 {
     private static StreamReader? file = null;
+    private static int? backedUpCharacter = null; 
 
     /// <summary>
     /// Sets and opens source file to start reading
@@ -21,19 +22,39 @@ public class LexicalAnalyzer
     /// <returns>The proper token data structure </returns>
     public static Token? NextToken()
     {
-        if (file == null)
+        if (file == null || file.EndOfStream)
         {
             return null;
         }
 
-        var character = file.Read();
-        if (character == -1)
+        int character;
+        do
         {
-            file.Close();
-            return null;
-        }
+            if (backedUpCharacter == null)
+            {
+                character = file.Read();
+            }
 
-        Console.WriteLine((char)character);
-        return new Token();
+            else
+            {
+                character = backedUpCharacter.Value;
+                backedUpCharacter = null;
+            }
+
+            if (character == -1)
+            {
+                // End of file, resolve last token
+                TokenManager.ResolveToken(TransitionTable.CurrentState);
+                break;
+            }
+
+        } while (!TransitionTable.Transition((char)character));
+
+        return TokenManager.GetCurrentToken();
+    }
+
+    public static void BackupCharacter(int character)
+    {
+        backedUpCharacter = character;
     }
 }

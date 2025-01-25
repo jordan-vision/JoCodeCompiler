@@ -6,6 +6,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        LexicalAnalyzer.TransitionTable.BuildTransitionTable();
+
         var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
         var files = dir.GetFiles("*.src");
 
