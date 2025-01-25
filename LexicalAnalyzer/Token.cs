@@ -1,5 +1,5 @@
 ﻿
-namespace JoCodeCompiler;
+namespace LexicalAnalyzer;
 
 public class Token
 {

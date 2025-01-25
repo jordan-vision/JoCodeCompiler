@@ -1,7 +1,7 @@
 ﻿
-namespace JoCodeCompiler;
+namespace LexicalAnalyzer;
 
-public class LexicalAnalizer
+public class LexicalAnalyzer
 {
     private static StreamReader? file = null;
 
@@ -33,6 +33,7 @@ public class LexicalAnalizer
             return null;
         }
 
+        Console.WriteLine((char)character);
         return new Token();
     }
 }

@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JoCodeCompiler", "JoCodeCompiler.csproj", "{0C8A636B-89F9-4857-8EBC-0C0CFD0E0283}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoCodeCompiler", "JoCodeCompiler.csproj", "{0C8A636B-89F9-4857-8EBC-0C0CFD0E0283}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexicalAnalyzer", "..\LexicalAnalyzer\LexicalAnalyzer.csproj", "{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{0C8A636B-89F9-4857-8EBC-0C0CFD0E0283}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C8A636B-89F9-4857-8EBC-0C0CFD0E0283}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C8A636B-89F9-4857-8EBC-0C0CFD0E0283}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

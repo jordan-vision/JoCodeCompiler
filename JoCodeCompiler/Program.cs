@@ -1,4 +1,5 @@
-﻿
+﻿using Lex = LexicalAnalyzer.LexicalAnalyzer;
+
 namespace JoCodeCompiler;
 
 public class Program
@@ -17,9 +18,9 @@ public class Program
         foreach (var file in files)
         {
             Console.WriteLine($"Reading from file {file}");
-            LexicalAnalizer.OpenFile(file.FullName);
+            Lex.OpenFile(file.FullName);
 
-            while (LexicalAnalizer.NextToken() != null) { };
+            while (Lex.NextToken() != null) { };
         }
     }
 }
