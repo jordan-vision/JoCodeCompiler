@@ -307,8 +307,9 @@ public class TransitionTable
 
         // Invalid character
         if (symbol == 0)
-        {  
+        {
             TokenManager.ResolveToken(currentState);
+            LexicalAnalyzer.WriteLexicalError("Invalid character", character.ToString(), LexicalAnalyzer.CurrentPositionInFile.Item1, LexicalAnalyzer.CurrentPositionInFile.Item2);
             currentState = 1;
             return true;
         }

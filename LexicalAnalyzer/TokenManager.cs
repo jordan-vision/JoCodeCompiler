@@ -110,6 +110,7 @@ public class TokenManager
                 break;
 
             case 20:
+                LexicalAnalyzer.WriteLexicalError("Invalid identifier", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
                 currentToken.Type = "INV_ID";
                 break;
 
@@ -122,6 +123,7 @@ public class TokenManager
                 break;
 
             case 25:
+                LexicalAnalyzer.WriteLexicalError("Invalid number. Include at least one digit after the floating point", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
                 currentToken.Type = "INV_FLOAT_1";
                 break;
 
@@ -150,27 +152,24 @@ public class TokenManager
                 break;
 
             case 33:
-                currentToken.Type = "FLOAT_1";
+            case 37:
+            case 38:
+                currentToken.Type = "FLOAT";
                 break;
 
             case 34:
+                LexicalAnalyzer.WriteLexicalError("Invalid number. Float may not end with a zero", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
                 currentToken.Type = "INV_FLOAT_2";
                 break;
 
             case 35:
+                LexicalAnalyzer.WriteLexicalError("Invalid number. No value after e", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
                 currentToken.Type = "INV_FLOAT_3";
                 break;
 
             case 36:
+                LexicalAnalyzer.WriteLexicalError("Invalid number. No value after e", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
                 currentToken.Type = "INV_FLOAT_4";
-                break;
-
-            case 37:
-                currentToken.Type = "FLOAT_2";
-                break;
-
-            case 38:
-                currentToken.Type = "FLOAT_3";
                 break;
 
             default:

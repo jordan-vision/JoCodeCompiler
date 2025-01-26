@@ -5,7 +5,7 @@ public class LexicalAnalyzer
 {
     private static StreamReader? inFile = null;
     private static int? backedUpCharacter = null;
-    private static (int, int) currentPositionInFile = (1, 1);
+    private static (int, int) currentPositionInFile = (1, 1), nextPosition = (1, 1);
     private static FileStream? tokenStream, errorStream;
     private static StreamWriter? tokenWriter, errorWriter;
 
@@ -59,16 +59,14 @@ public class LexicalAnalyzer
         }
 
         int character;
-        var nextPosition = currentPositionInFile;
 
         do
         {
-            currentPositionInFile = nextPosition;
-            nextPosition = (currentPositionInFile.Item1, currentPositionInFile.Item2 + 1);
-
             if (backedUpCharacter == null)
             {
                 character = inFile.Read();
+                currentPositionInFile = nextPosition;
+                nextPosition = (currentPositionInFile.Item1, currentPositionInFile.Item2 + 1);
             }
 
             else
@@ -106,5 +104,10 @@ public class LexicalAnalyzer
     public static void BackupCharacter(int character)
     {
         backedUpCharacter = character;
+    }
+
+    public static void WriteLexicalError(string message, string lexeme, int line, int col) 
+    {
+        errorWriter?.WriteLine($"Lexical error. {message}: \"{lexeme}\" line {line}, column {col}");
     }
 }
