@@ -3,17 +3,44 @@ namespace LexicalAnalyzer;
 
 public class LexicalAnalyzer
 {
-    private static StreamReader? file = null;
-    private static int? backedUpCharacter = null; 
+    private static StreamReader? inFile = null;
+    private static int? backedUpCharacter = null;
+    private static (int, int) currentPositionInFile = (1, 1);
+    private static FileStream? tokenStream, errorStream;
+    private static StreamWriter? tokenWriter, errorWriter;
+
+    public static (int, int) CurrentPositionInFile => currentPositionInFile;
 
     /// <summary>
     /// Sets and opens source file to start reading
     /// </summary>
     /// <param name="filename">Name of file to open</param>
-    public static void OpenFile(string filename)
+    public static void OpenSourceFile(string filename)
     {
-        file?.Close();
-        file = new StreamReader(filename);
+        inFile?.Close();
+        tokenWriter?.Close();
+        errorWriter?.Close();
+
+        inFile = new StreamReader(filename);
+        backedUpCharacter = null;
+        currentPositionInFile = (1, 1);
+
+        var outputDirectory = Path.GetDirectoryName(filename);
+
+        if (outputDirectory == null)
+        {
+            Console.WriteLine("IO Error.");
+            return;
+        }
+
+        var outLexTokensFilename = $"{Path.GetFileNameWithoutExtension(filename)}.outLexTokens";
+        var outLexErrorsFilename = $"{Path.GetFileNameWithoutExtension(filename)}.outLexErrors";
+
+        tokenStream = File.Create(Path.Combine(outputDirectory, outLexTokensFilename));
+        errorStream = File.Create(Path.Combine(outputDirectory, outLexErrorsFilename));
+
+        tokenWriter = new(tokenStream);
+        errorWriter = new(errorStream);
     }
 
     /// <summary>
@@ -22,17 +49,26 @@ public class LexicalAnalyzer
     /// <returns>The proper token data structure </returns>
     public static Token? NextToken()
     {
-        if (file == null || file.EndOfStream)
+        if (inFile == null || inFile.EndOfStream)
         {
+            inFile?.Close();
+            tokenWriter?.Close();
+            errorWriter?.Close();
+
             return null;
         }
 
         int character;
+        var nextPosition = currentPositionInFile;
+
         do
         {
+            currentPositionInFile = nextPosition;
+            nextPosition = (currentPositionInFile.Item1, currentPositionInFile.Item2 + 1);
+
             if (backedUpCharacter == null)
             {
-                character = file.Read();
+                character = inFile.Read();
             }
 
             else
@@ -48,9 +84,23 @@ public class LexicalAnalyzer
                 break;
             }
 
+            // If new line, reset column number and add to line number
+            if ((char)character == '\n')
+            {
+                nextPosition = (currentPositionInFile.Item1 + 1, 1);
+                tokenWriter?.WriteLine();
+            }
+
         } while (!TransitionTable.Transition((char)character));
 
-        return TokenManager.GetCurrentToken();
+        var token = TokenManager.GetCurrentToken();
+
+        if (token != null && token.Type != "SKIP")
+        {
+            tokenWriter?.Write(token.ToString());
+        }
+
+        return token;
     }
 
     public static void BackupCharacter(int character)

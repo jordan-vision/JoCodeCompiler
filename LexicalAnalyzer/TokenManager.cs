@@ -6,9 +6,12 @@ public class TokenManager
     private static Token? currentToken = null;
     private static string[] reservedWords = ["or", "and", "not", "int", "float", "void", "class", "self", "isa", "implementation", "while", "if", "then", "else", "read", "write", "return", "local", "constructor", "attribute", "function", "public", "private"];
 
-    public static void NewToken()
+    public static void NewToken((int, int) position)
     {
-        currentToken = new Token();
+        currentToken = new Token()
+        {
+            Location = position,
+        };
     }
 
     public static void AddToLexeme(char character)
@@ -89,9 +92,9 @@ public class TokenManager
                 break;
 
             case 17:
-                if (reservedWords.Contains(currentToken.Lexeme))
+                if (reservedWords.Contains(currentToken.Lexeme.ToLower()))
                 {
-                    currentToken.Type = "RESERVED";
+                    currentToken.Type = currentToken.Lexeme.ToUpper();
                 } else
                 {
                     currentToken.Type = "ID";
@@ -151,15 +154,15 @@ public class TokenManager
                 break;
 
             case 34:
-                currentToken.Type = "IV_FLOAT_2";
+                currentToken.Type = "INV_FLOAT_2";
                 break;
 
             case 35:
-                currentToken.Type = "IV_FLOAT_3";
+                currentToken.Type = "INV_FLOAT_3";
                 break;
 
             case 36:
-                currentToken.Type = "IV_FLOAT_4";
+                currentToken.Type = "INV_FLOAT_4";
                 break;
 
             case 37:
@@ -179,12 +182,14 @@ public class TokenManager
     {
         if (currentToken == null)
         {
-            return null;
+            return new Token()
+            {
+                Type = "SKIP",
+            };
         }
 
         var returnToken = currentToken;
         currentToken = null;
-        Console.WriteLine($"{returnToken.Type}: {returnToken.Lexeme}");
         return returnToken;
     }
 }

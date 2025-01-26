@@ -20,7 +20,7 @@ public class Program
         foreach (var file in files)
         {
             Console.WriteLine($"Reading from file {file}");
-            Lex.OpenFile(file.FullName);
+            Lex.OpenSourceFile(file.FullName);
 
             while (Lex.NextToken() != null) { };
         }

@@ -34,11 +34,11 @@ public class TransitionTable
         table[(1, 17)] = 16;
         table[(1, 18)] = 17;
         table[(1, 19)] = 18;
-        table[(1, 20)] = 19;
-        table[(1, 21)] = 20;
-        table[(1, 22)] = 21;
-        table[(1, 23)] = 22;
-        table[(1, 24)] = 23;
+        table[(1, 20)] = 18;
+        table[(1, 21)] = 19;
+        table[(1, 22)] = 20;
+        table[(1, 23)] = 21;
+        table[(1, 24)] = 22;
 
         // From /
         table[(9, 5)] = 23;
@@ -336,7 +336,7 @@ public class TransitionTable
         // If going out of start state
         if (previousState == 1)
         {
-            TokenManager.NewToken();
+            TokenManager.NewToken(LexicalAnalyzer.CurrentPositionInFile);
         }
 
         TokenManager.AddToLexeme(character);
