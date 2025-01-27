@@ -10,6 +10,9 @@ public class Token
     public string Type { get { return type; } set { type = value; } }
     public (int, int) Location { get { return location; } set { location = value; } }
 
+    /// <summary>
+    /// By default, a token is "SKIP" type, meaning that it will not be considered by the lexical analyzer
+    /// </summary>
     public Token()
     {
         type = "SKIP";

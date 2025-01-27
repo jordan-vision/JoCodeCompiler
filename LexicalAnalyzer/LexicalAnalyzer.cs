@@ -62,6 +62,7 @@ public class LexicalAnalyzer
 
         do
         {
+            // Read from file if there is no backed up character
             if (backedUpCharacter == null)
             {
                 character = inFile.Read();
@@ -69,6 +70,7 @@ public class LexicalAnalyzer
                 nextPosition = (currentPositionInFile.Item1, currentPositionInFile.Item2 + 1);
             }
 
+            // Otherwise use backed up character and consume it
             else
             {
                 character = backedUpCharacter.Value;
@@ -93,6 +95,7 @@ public class LexicalAnalyzer
 
         var token = TokenManager.GetCurrentToken();
 
+        // Ignore token if it is SKIP type
         if (token != null && token.Type != "SKIP")
         {
             tokenWriter?.Write(token.ToString());
@@ -101,11 +104,22 @@ public class LexicalAnalyzer
         return token;
     }
 
+    /// <summary>
+    /// For the next iteration of NextToken, use this character instead of reading from file
+    /// </summary>
+    /// <param name="character">Character to back up</param>
     public static void BackupCharacter(int character)
     {
         backedUpCharacter = character;
     }
 
+    /// <summary>
+    /// Format and write lexical error in outlexerror file
+    /// </summary>
+    /// <param name="message">Reason for the error</param>
+    /// <param name="lexeme">Problematic string</param>
+    /// <param name="line">line of first character</param>
+    /// <param name="col">column of first character</param>
     public static void WriteLexicalError(string message, string lexeme, int line, int col) 
     {
         errorWriter?.WriteLine($"Lexical error. {message}: \"{lexeme}\" line {line}, column {col}");

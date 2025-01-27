@@ -6,6 +6,10 @@ public class TokenManager
     private static Token? currentToken = null;
     private static string[] reservedWords = ["or", "and", "not", "int", "float", "void", "class", "self", "isa", "implementation", "while", "if", "then", "else", "read", "write", "return", "local", "constructor", "attribute", "function", "public", "private"];
 
+    /// <summary>
+    /// Create token with given location
+    /// </summary>
+    /// <param name="position">Coordinates of the first character of the token</param>
     public static void NewToken((int, int) position)
     {
         currentToken = new Token()
@@ -14,6 +18,10 @@ public class TokenManager
         };
     }
 
+    /// <summary>
+    /// Add character to current token's lexeme
+    /// </summary>
+    /// <param name="character">Character to add</param>
     public static void AddToLexeme(char character)
     {
         if (currentToken != null)
@@ -22,6 +30,10 @@ public class TokenManager
         }
     }
 
+    /// <summary>
+    /// Determines current token's type based on current state
+    /// </summary>
+    /// <param name="currentState">State of the state machine in the transition table</param>
     public static void ResolveToken(int currentState)
     {
         if (currentToken == null)
@@ -177,6 +189,10 @@ public class TokenManager
         }
     }
 
+    /// <summary>
+    /// Accessor for current token. Consumes token
+    /// </summary>
+    /// <returns></returns>
     public static Token? GetCurrentToken()
     {
         if (currentToken == null)
