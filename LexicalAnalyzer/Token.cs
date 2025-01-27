@@ -12,9 +12,9 @@ public class Token
 
     public Token()
     {
-        type = "INCOMPLETE";
+        type = "SKIP";
         lexeme = "";
-        location = (0, 0); // Change this later
+        location = (0, 0);
     }
 
     public override string ToString()

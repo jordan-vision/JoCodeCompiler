@@ -33,7 +33,7 @@ public class TransitionTable
         table[(1, 16)] = 15;
         table[(1, 17)] = 16;
         table[(1, 18)] = 17;
-        table[(1, 19)] = 18;
+        table[(1, 19)] = 17;
         table[(1, 20)] = 18;
         table[(1, 21)] = 19;
         table[(1, 22)] = 20;

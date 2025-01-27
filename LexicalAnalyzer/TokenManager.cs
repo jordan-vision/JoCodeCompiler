@@ -64,11 +64,11 @@ public class TokenManager
                 break;
 
             case 10:
-                currentToken.Type = "ZERO";
+                currentToken.Type = "ZERO_VAL";
                 break;
 
             case 11:
-                currentToken.Type = "INT";
+                currentToken.Type = "INT_VAL";
                 break;
 
             case 12:
@@ -84,7 +84,7 @@ public class TokenManager
                 break;
 
             case 15:
-                currentToken.Type = "EQUALS";
+                currentToken.Type = "ASSIGN";
                 break;
 
             case 16:
@@ -140,7 +140,7 @@ public class TokenManager
                 break;
 
             case 29:
-                currentToken.Type = "ASSIGN";
+                currentToken.Type = "EQUALS";
                 break;
 
             case 30:
@@ -154,7 +154,7 @@ public class TokenManager
             case 33:
             case 37:
             case 38:
-                currentToken.Type = "FLOAT";
+                currentToken.Type = "FLOAT_VAL";
                 break;
 
             case 34:
