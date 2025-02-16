@@ -1,4 +1,4 @@
-﻿using Lex = LexicalAnalyzer.LexicalAnalyzer;
+﻿using Parser = SyntacticAnalyzer.Parser;
 
 namespace JoCodeCompiler;
 
@@ -7,6 +7,7 @@ public class Program
     public static void Main(string[] args)
     {
         LexicalAnalyzer.TransitionTable.BuildTransitionTable();
+        SyntacticAnalyzer.ParsingTable.BuildParsingTable();
 
         var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
         var files = dir.GetFiles("*.src");
@@ -20,9 +21,8 @@ public class Program
         foreach (var file in files)
         {
             Console.WriteLine($"Reading from file {file}");
-            Lex.OpenSourceFile(file.FullName);
-
-            while (Lex.NextToken() != null) { };
+            Parser.OpenSourceFile(file.FullName);
+            Parser.Parse();
         }
     }
 }
