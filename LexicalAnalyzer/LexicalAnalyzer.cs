@@ -55,7 +55,12 @@ public class LexicalAnalyzer
             tokenWriter?.Close();
             errorWriter?.Close();
 
-            return null;
+            if (inFile == null) 
+            {
+                return null;
+            }
+
+            return new Token { Type = "$" };
         }
 
         int character;

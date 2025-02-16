@@ -125,7 +125,7 @@ public class GrammarSymbols
         NOT, OR, PRIVATE, PUBLIC, READ, RETURN, SELF, THEN, VOID, WHILE, WRITE, END];
 
     // Translate text to grammar symbols
-    public static Dictionary<string, string> lexemeToType;
+    public static Dictionary<string, string> lexemeToType = [];
 
     public static void BuildDictionary()
     {

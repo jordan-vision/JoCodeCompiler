@@ -5,16 +5,14 @@ public class ParsingTable
 {
     private static Stack<string> stack = new Stack<string>();
     private static Dictionary<(int, int), string> parsingTable = [];
+    private static List<string> derivation = [GrammarSymbols.START];
 
     public static void BuildParsingTable()
     {
+        ResetStack();
         GrammarSymbols.BuildDictionary();
 
-        stack.Push(GrammarSymbols.END);
-        stack.Push(GrammarSymbols.START);
-
         var parsingTableFilePath = Path.Combine(Directory.GetCurrentDirectory(), "parsingtable.tsv");
-
         var sr = new StreamReader(parsingTableFilePath);
         var (row, col) = (0, 0);
 
@@ -45,11 +43,6 @@ public class ParsingTable
         }
     }
 
-    public static bool EndOfProgramReached()
-    {
-        return stack.Peek() == GrammarSymbols.END;
-    }
-
     public static void Derive(string thisToken)
     {
         string topElement;
@@ -72,6 +65,7 @@ public class ParsingTable
                     Array.IndexOf(GrammarSymbols.TERMINALS, thisToken)
                     ), out var production))
                 {
+                    // Apply production to stack
                     stack.Pop();
                     var toPush = production.Split(" ").Reverse().ToList();
                     foreach (var word in toPush)
@@ -84,7 +78,26 @@ public class ParsingTable
                         stack.Push(word);
                     }
 
-                    Console.WriteLine(topElement + " -> " + production.ToString());
+                    // Write derivation
+                    var firstIndexOfReplacement = derivation.IndexOf(topElement);
+                    var newDerivation = derivation.GetRange(0, firstIndexOfReplacement) ?? [];
+                    newDerivation.AddRange(toPush.AsEnumerable().Reverse());
+                    newDerivation.AddRange(derivation.GetRange(firstIndexOfReplacement + 1, derivation.Count - firstIndexOfReplacement - 1));
+                    derivation = newDerivation;
+
+                    string derivationString = "=> ";
+
+                    foreach (var word in derivation)
+                    {
+                        if (word.Equals("EPSILON"))
+                        {
+                            continue;
+                        }
+
+                        derivationString += (derivationString == "=> ") ? word : " " + word;
+                    }
+
+                    Parser.WriteDerivation(derivationString);
                 }
 
             }
@@ -104,5 +117,15 @@ public class ParsingTable
         }
 
         return translated;
+    }
+
+    public static void ResetStack()
+    {
+        stack = new();
+
+        stack.Push(GrammarSymbols.END);
+        stack.Push(GrammarSymbols.START);
+
+        derivation = [GrammarSymbols.START];
     }
 }
