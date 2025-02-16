@@ -74,6 +74,7 @@ public class TransitionTable
         table[(17, 22)] = 17;
 
         // From CMT
+        table[(23, 0)] = 23; // Ignore invalid comments while inside a comment
         table[(23, 1)] = 23;
         table[(23, 2)] = 23;
         table[(23, 3)] = 23;
@@ -100,6 +101,7 @@ public class TransitionTable
         table[(23, 24)] = 23;
 
         // From INLINE
+        table[(24, 0)] = 24; // Ignore invalid comments while inside a comment
         table[(24, 1)] = 1;
         table[(24, 2)] = 24;
         table[(24, 3)] = 24;
@@ -306,7 +308,7 @@ public class TransitionTable
         }
 
         // Invalid character
-        if (symbol == 0)
+        if (symbol == 0 && currentState != 23 && currentState != 24)
         {
             TokenManager.ResolveToken(currentState);
             LexicalAnalyzer.WriteLexicalError("Invalid character", character.ToString(), LexicalAnalyzer.CurrentPositionInFile.Item1, LexicalAnalyzer.CurrentPositionInFile.Item2);

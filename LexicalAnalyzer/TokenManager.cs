@@ -76,11 +76,8 @@ public class TokenManager
                 break;
 
             case 10:
-                currentToken.Type = "ZERO_VAL";
-                break;
-
             case 11:
-                currentToken.Type = "INT_VAL";
+                currentToken.Type = "INTLIT";
                 break;
 
             case 12:
@@ -123,7 +120,7 @@ public class TokenManager
 
             case 20:
                 LexicalAnalyzer.WriteLexicalError("Invalid identifier", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
-                currentToken.Type = "INV_ID";
+                currentToken.Type = "INVID";
                 break;
 
             case 21:
@@ -136,7 +133,7 @@ public class TokenManager
 
             case 25:
                 LexicalAnalyzer.WriteLexicalError("Invalid number. Include at least one digit after the floating point", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
-                currentToken.Type = "INV_FLOAT_1";
+                currentToken.Type = "INVFLOAT1";
                 break;
 
             case 26:
@@ -166,22 +163,22 @@ public class TokenManager
             case 33:
             case 37:
             case 38:
-                currentToken.Type = "FLOAT_VAL";
+                currentToken.Type = "FLOATLIT";
                 break;
 
             case 34:
                 LexicalAnalyzer.WriteLexicalError("Invalid number. Float may not end with a zero", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
-                currentToken.Type = "INV_FLOAT_2";
+                currentToken.Type = "INVFLOAT2";
                 break;
 
             case 35:
                 LexicalAnalyzer.WriteLexicalError("Invalid number. No value after e", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
-                currentToken.Type = "INV_FLOAT_3";
+                currentToken.Type = "INVFLOAT3";
                 break;
 
             case 36:
                 LexicalAnalyzer.WriteLexicalError("Invalid number. No value after e", currentToken.Lexeme, currentToken.Location.Item1, currentToken.Location.Item2);
-                currentToken.Type = "INV_FLOAT_4";
+                currentToken.Type = "INVFLOAT4";
                 break;
 
             default:

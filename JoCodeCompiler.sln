@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoCodeCompiler", "JoCodeCom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LexicalAnalyzer", "LexicalAnalyzer\LexicalAnalyzer.csproj", "{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyntacticAnalyzer", "SyntacticAnalyzer\SyntacticAnalyzer.csproj", "{DED10584-2DCF-4A71-9859-D8F077C65F99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F29CD3A-FCB6-49D1-AFAE-6D3F4040AC36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DED10584-2DCF-4A71-9859-D8F077C65F99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DED10584-2DCF-4A71-9859-D8F077C65F99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DED10584-2DCF-4A71-9859-D8F077C65F99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DED10584-2DCF-4A71-9859-D8F077C65F99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
