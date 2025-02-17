@@ -7,6 +7,9 @@ public class ParsingTable
     private static Dictionary<(int, int), string> parsingTable = [];
     private static List<string> derivation = [GrammarSymbols.START];
 
+    /// <summary>
+    /// Read parsing table from parsingtable.tsv file
+    /// </summary>
     public static void BuildParsingTable()
     {
         ResetStack();
@@ -43,6 +46,10 @@ public class ParsingTable
         }
     }
 
+    /// <summary>
+    /// Derive token from current stack
+    /// </summary>
+    /// <param name="thisToken">Terminal symbol to derive</param>
     public static void Derive(string thisToken)
     {
         string topElement;
@@ -59,6 +66,7 @@ public class ParsingTable
                 }
 
                 SkipError(thisToken.Equals(GrammarSymbols.END), thisToken);
+                return;
             }
             else
             {

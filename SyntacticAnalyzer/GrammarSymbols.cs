@@ -124,9 +124,8 @@ public class GrammarSymbols
         TRI, EQUALS, LAMBDA, RT, GEQ, AND, ATTRIBUTE, CLASS, CONSTRUCTOR, ELSE, FLOAT, FLOATLIT, FUNCTION, ID, IF, IMPLEMENTATION, INT, INTLIT, ISA, LOCAL, 
         NOT, OR, PRIVATE, PUBLIC, READ, RETURN, SELF, THEN, VOID, WHILE, WRITE, END];
 
-    // Translate text to grammar symbols
-    public static Dictionary<string, string> lexemeToType = [];
-    public static Dictionary<string, string> nonTerminalToErrorDetails = [];
+    public static Dictionary<string, string> lexemeToType = []; // Translate token to grammar symbols
+    public static Dictionary<string, string> nonTerminalToErrorDetails = []; // Get error from non-terminal symbol
 
     public static void BuildDictionaries()
     {
