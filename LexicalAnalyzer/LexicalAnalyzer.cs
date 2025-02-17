@@ -24,6 +24,7 @@ public class LexicalAnalyzer
         inFile = new StreamReader(filename);
         backedUpCharacter = null;
         currentPositionInFile = (1, 1);
+        nextPosition = (1, 1);
 
         var outputDirectory = Path.GetDirectoryName(filename);
 

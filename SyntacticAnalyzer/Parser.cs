@@ -7,6 +7,8 @@ public class Parser
 {
     private static FileStream? derivationStream, syntaxErrorStream;
     private static StreamWriter? derivationWriter, syntaxErrorWriter;
+    private static LexicalAnalyzer.Token? token;
+    private static bool nextTokenFlag = false, isProgramSyntacticallyCorrect = true;
 
     /// <summary>
     /// Opens file in lexical analyzer
@@ -21,6 +23,9 @@ public class Parser
 
         Lex.OpenSourceFile(filename);
 
+        nextTokenFlag = false;
+        isProgramSyntacticallyCorrect = true;
+
         var outputDirectory = Path.GetDirectoryName(filename);
 
         if (outputDirectory == null)
@@ -29,14 +34,14 @@ public class Parser
             return;
         }
 
-        var outDerivationFilename = $"{Path.GetFileNameWithoutExtension(filename)}.outderivation";
-        //var outSyntaxErrorsErrorsFilename = $"{Path.GetFileNameWithoutExtension(filename)}.outsyntaxerrors";
+        var outDerivationFilename = $"{Path.GetFileNameWithoutExtension(filename)}.outDerivation";
+        var outSyntaxErrorsErrorsFilename = $"{Path.GetFileNameWithoutExtension(filename)}.outSyntaxErrors";
 
         derivationStream = File.Create(Path.Combine(outputDirectory, outDerivationFilename));
-        //syntaxErrorStream = File.Create(Path.Combine(outputDirectory, outSyntaxErrorsErrorsFilename));
+        syntaxErrorStream = File.Create(Path.Combine(outputDirectory, outSyntaxErrorsErrorsFilename));
 
         derivationWriter = new(derivationStream);
-        //syntaxErrorWriter = new(syntaxErrorStream);
+        syntaxErrorWriter = new(syntaxErrorStream);
     }
 
     /// <summary>
@@ -44,41 +49,104 @@ public class Parser
     /// </summary>
     public static void Parse()
     {
-        LexicalAnalyzer.Token? token;
-        
         do
         {
-            bool isTokenValid;
-
-            do
+            if (!nextTokenFlag)
             {
-                token = Lex.NextToken();
-                isTokenValid = true;
+                token = NextToken();
+            } 
+            else
+            {
+                nextTokenFlag = true;
+            }
 
-                if (token == null)
-                {
-                    Debug.WriteLine("ERROR. Source file does not exist");
-                    return;
-                }
-
-                if (!GrammarSymbols.TERMINALS.Contains(token.Type))
-                {
-                    isTokenValid = false;
-                }
-
-            } while (!isTokenValid);
+            if (token == null)
+            {
+                Console.WriteLine("ERROR! Token stream invalid");
+                return;
+            }
 
             ParsingTable.Derive(token.Type);
 
         } while (!token.Type.Equals(GrammarSymbols.END));
+
+        if (!isProgramSyntacticallyCorrect || !ParsingTable.IsStackEmpty())
+        {
+            WriteSyntaxError(ParsingTable.TopOfStack(), false);
+            syntaxErrorWriter?.WriteLine("Analysis concluded with syntax errors. See above.");
+        }
+
+        derivationWriter?.Close();
+        syntaxErrorWriter?.Close();
     }
 
+    /// <summary>
+    /// Writes derivation in outDerivation file
+    /// </summary>
+    /// <param name="derivation">String representing derivation</param>
     public static void WriteDerivation(string derivation)
     {
         derivationWriter?.WriteLine(derivation);
         derivationWriter?.WriteLine();
+    }
 
-        Console.WriteLine(derivation);
-        Console.WriteLine();
+    /// <summary>
+    /// Obtain next valid token
+    /// </summary>
+    /// <param name="raiseNextTokenFlag">If function is called during a scan error, do not get next token on the next loop execution</param>
+    /// <returns></returns>
+    public static LexicalAnalyzer.Token? NextToken(bool raiseNextTokenFlag = false)
+    {
+        bool isTokenValid;
+
+        do
+        {
+            isTokenValid = true;
+
+            token = Lex.NextToken();
+
+            if (token == null)
+            {
+                Debug.WriteLine("ERROR. Source file does not exist!");
+                return null;
+            }
+
+            if (!GrammarSymbols.TERMINALS.Contains(token.Type))
+            {
+                isTokenValid = false;
+            }
+
+        } while (!isTokenValid);
+
+        nextTokenFlag = raiseNextTokenFlag;
+        return token;
+    }
+
+    /// <summary>
+    /// Write syntax error in outSyntaxErrors file
+    /// </summary>
+    /// <param name="topOfStack">Top of stack in parsing table. Allows for more details about the error</param>
+    /// <param name="includeToken">Include lexeme and location of current token</param>
+    public static void WriteSyntaxError(string topOfStack, bool includeToken)
+    {
+        var message = "Syntax error. ";
+
+        if (includeToken)
+        {
+            message += $"Unexpected symbol \"{token?.Lexeme}\" on line {token?.Location.Item1}, column {token?.Location.Item2}. ";
+        }
+
+        var details = GrammarSymbols.TERMINALS.Contains(topOfStack) ? $"Expected a token of type {topOfStack}" : $"{GrammarSymbols.nonTerminalToErrorDetails[topOfStack]}";
+        message += details;
+
+        syntaxErrorWriter?.WriteLine(message);    
+    }
+
+    /// <summary>
+    /// Call when a syntax error is encountered. Signals that the current program is invalid.
+    /// </summary>
+    public static void InvalidProgram()
+    {
+        isProgramSyntacticallyCorrect = false;
     }
 }

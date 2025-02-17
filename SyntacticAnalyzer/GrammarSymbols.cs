@@ -126,8 +126,9 @@ public class GrammarSymbols
 
     // Translate text to grammar symbols
     public static Dictionary<string, string> lexemeToType = [];
+    public static Dictionary<string, string> nonTerminalToErrorDetails = [];
 
-    public static void BuildDictionary()
+    public static void BuildDictionaries()
     {
         lexemeToType = new() { 
             { "-", MINUS },
@@ -152,6 +153,66 @@ public class GrammarSymbols
             { "=>", LAMBDA },
             { ">", RT },
             { ">=", GEQ },
+        };
+
+        nonTerminalToErrorDetails = new()
+        {
+            { START, "Begin the program with a valid class, function, or implementation."},
+            { PROG, "Begin the program with a valid class, function, or implementation."},
+            { CLASSORIMPLORFUNCREPETITION, "Expected a valid class, function, or implementation."},
+            { CLASSORIMPLORFUNC, "Expected a valid class, function, or implementation."},
+            { CLASSDECL, "Invalid class declaration."},
+            { PARENTCLASSDEF, "Invalid parent class definition."},
+            { CLASSMEMBERS, "Expected a visibility modifier."},
+            { PARENTCLASSLIST, "Use comma separated identifiers for each parent class."},
+            { IMPLDEF, "Invalid implementation definition."},
+            { FUNCDEFREPETITION, "Invalid function definition."},
+            { FUNCDEF, "Invalid function definition."},
+            { VISIBILITY, "Expected a visibility modifier."},
+            { MEMBERDECL, "Expected a valid attribute or function declaration."},
+            { FUNCDECL, "Invalid function declaration."},
+            { FUNCHEAD, "Invalid function head."},
+            { FUNCBODY, "Invalid function body."},
+            { LOCALVARDECLORSTATEMENTREPETITION, "Expected a valid statement or loval variable declaration."},
+            { LOCALVARDECLORSTAT, "Expected a valid statement or loval variable declaration."},
+            { ATTRIBUTEDECL, "Invalud attribute declaration."},
+            { LOCALVARDECL, "Invalid local variable declaration."},
+            { VARDECL, "Invalid variable declaration."},
+            { ARRAYSIZEREPETITION, "Use successive square brackets to define array size."},
+            { STATEMENT, "Invalid statement."},
+            { STATBLOCK, "Invalid statement block."},
+            { STATEMENTREPETITION, "Invalid statement."},
+            { EXPR, "Invalid expression"},
+            { RELEXPR, "Expected a valid comparison expression."},
+            { ARITHEXPR, "Expected a valid number or arithmetic expression."},
+            { SIGN, "Expected \"+\" or \"-\"."},
+            { TERM, "Invalid term in expression."},
+            { FACTOR, "Invalid term in expression."},
+            { VARIABLE, "Invalid variable."},
+            { IDNEST, "Invalid identifier."},
+            { INDICE, "Invalid array indexing."},
+            { ARRAYSIZE, "Expected array size declaration."},
+            { TYPE, "Expected a valid type identifier."},
+            { RETURNTYPE, "Expected a valid type identifier or void."},
+            { FPARAMS, "Invalid function paramenter."},
+            { FPARAMSTAILREPETITION, "Enter comma separated identifiers for function paramenters."},
+            { APARAMS, "Invalid function argument."},
+            { APARAMSTAILREPETITION, "Enter comma separated identifiers for function arguments."},
+            { FPARAMSTAIL, "Enter comma separated identifiers for function paramenters."},
+            { APARAMSTAIL, "Enter comma separated identifiers for function arguments."},
+            { ASSIGNOP, "Expected assignment operator \":=\""},
+            { RELOP, "Expected comparison operator."},
+            { ADDOP, "Expected addition operator."},
+            { MULTOP, "Expected multiplocation operator."},
+            { IDORSELF, "Expected identifier or self."},
+            { FUNCTIONCALLORASSIGNSTAT, "Invalid function call or assignment statement."},
+            { FUNCTIONCALLORASSIGNSTAT2, "Invalid function call or assignment statement."},
+            { ARITHORRELEXPR, "Invalid expression."},
+            { ARITHEXPRTAIL, "Invalid number or arithmetic expression."},
+            { FACTORSTAIL, "Invalid number or arithmetic expression."},
+            { FUNCTIONCALLORVARIABLE, "Invalud function call or variable."},
+            { PARAMSORINDICES, "Expected parameters or indice."},
+            { ARRAYSIZE2, "Invalid array size."},
         };
     }
 }

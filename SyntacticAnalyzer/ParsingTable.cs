@@ -10,7 +10,7 @@ public class ParsingTable
     public static void BuildParsingTable()
     {
         ResetStack();
-        GrammarSymbols.BuildDictionary();
+        GrammarSymbols.BuildDictionaries();
 
         var parsingTableFilePath = Path.Combine(Directory.GetCurrentDirectory(), "parsingtable.tsv");
         var sr = new StreamReader(parsingTableFilePath);
@@ -57,48 +57,53 @@ public class ParsingTable
                     stack.Pop();
                     return;
                 }
+
+                SkipError(thisToken.Equals(GrammarSymbols.END), thisToken);
             }
             else
             {
-                if (parsingTable.TryGetValue((
+                if (!parsingTable.TryGetValue((
                     Array.IndexOf(GrammarSymbols.NONTERMINALS, topElement),
                     Array.IndexOf(GrammarSymbols.TERMINALS, thisToken)
-                    ), out var production))
+                    ), out var production) || production.Equals("POP"))
                 {
-                    // Apply production to stack
-                    stack.Pop();
-                    var toPush = production.Split(" ").Reverse().ToList();
-                    foreach (var word in toPush)
-                    {
-                        if (word.Equals("EPSILON"))
-                        {
-                            continue;
-                        }
-
-                        stack.Push(word);
-                    }
-
-                    // Write derivation
-                    var firstIndexOfReplacement = derivation.IndexOf(topElement);
-                    var newDerivation = derivation.GetRange(0, firstIndexOfReplacement) ?? [];
-                    newDerivation.AddRange(toPush.AsEnumerable().Reverse());
-                    newDerivation.AddRange(derivation.GetRange(firstIndexOfReplacement + 1, derivation.Count - firstIndexOfReplacement - 1));
-                    derivation = newDerivation;
-
-                    string derivationString = "=> ";
-
-                    foreach (var word in derivation)
-                    {
-                        if (word.Equals("EPSILON"))
-                        {
-                            continue;
-                        }
-
-                        derivationString += (derivationString == "=> ") ? word : " " + word;
-                    }
-
-                    Parser.WriteDerivation(derivationString);
+                    SkipError(thisToken.Equals(GrammarSymbols.END) || production != null && production.Equals("POP"), thisToken);
+                    return;
                 }
+
+                // Apply production to stack
+                stack.Pop();
+                var toPush = production.Split(" ").Reverse().ToList();
+                foreach (var word in toPush)
+                {
+                    if (word.Equals("EPSILON"))
+                    {
+                        continue;
+                    }
+
+                    stack.Push(word);
+                }
+
+                // Write derivation
+                var firstIndexOfReplacement = derivation.IndexOf(topElement);
+                var newDerivation = derivation.GetRange(0, firstIndexOfReplacement) ?? [];
+                newDerivation.AddRange(toPush.AsEnumerable().Reverse());
+                newDerivation.AddRange(derivation.GetRange(firstIndexOfReplacement + 1, derivation.Count - firstIndexOfReplacement - 1));
+                derivation = newDerivation;
+
+                string derivationString = "=> ";
+
+                foreach (var word in derivation)
+                {
+                    if (word.Equals("EPSILON"))
+                    {
+                        continue;
+                    }
+
+                    derivationString += (derivationString == "=> ") ? word : " " + word;
+                }
+
+                Parser.WriteDerivation(derivationString);
 
             }
         } while (!GrammarSymbols.TERMINALS.Contains(topElement));
@@ -127,5 +132,44 @@ public class ParsingTable
         stack.Push(GrammarSymbols.START);
 
         derivation = [GrammarSymbols.START];
+    }
+
+    private static void SkipError(bool pop, string thisToken)
+    {
+        Parser.WriteSyntaxError(stack.Peek(), true);
+        Parser.InvalidProgram();
+
+        if (pop)
+        {
+            stack.Pop();
+            return;
+        }
+
+        var topElement = stack.Peek();
+
+        while (!parsingTable.TryGetValue((
+                    Array.IndexOf(GrammarSymbols.NONTERMINALS, topElement),
+                    Array.IndexOf(GrammarSymbols.TERMINALS, thisToken)
+                    ), out var production) || production.Equals("POP"))
+        {
+            var token = Parser.NextToken(false);
+            
+            if (token == null)
+            {
+                return;
+            }
+
+            thisToken = token.Type;
+        }
+    }
+
+    public static bool IsStackEmpty()
+    {
+        return stack.Count == 0;
+    }
+
+    public static string TopOfStack()
+    {
+        return stack.Peek();
     }
 }
