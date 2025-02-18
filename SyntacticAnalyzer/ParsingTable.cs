@@ -1,4 +1,6 @@
 ﻿
+using LexicalAnalyzer;
+
 namespace SyntacticAnalyzer;
 
 public class ParsingTable
@@ -154,20 +156,22 @@ public class ParsingTable
         }
 
         var topElement = stack.Peek();
+        var token = Parser.NextToken(false);
 
-        while (!parsingTable.TryGetValue((
+        while ((!parsingTable.TryGetValue((
                     Array.IndexOf(GrammarSymbols.NONTERMINALS, topElement),
                     Array.IndexOf(GrammarSymbols.TERMINALS, thisToken)
-                    ), out var production) || production.Equals("POP"))
+                    ), out var production) || production.Equals("POP")) 
+                    && token != null && !token.Type.Equals(GrammarSymbols.END))
         {
-            var token = Parser.NextToken(false);
-            
+
             if (token == null)
             {
                 return;
             }
 
             thisToken = token.Type;
+            token = Parser.NextToken(false);
         }
     }
 

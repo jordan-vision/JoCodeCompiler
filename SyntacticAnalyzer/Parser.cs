@@ -88,6 +88,7 @@ public class Parser
     {
         derivationWriter?.WriteLine(derivation);
         derivationWriter?.WriteLine();
+        derivationWriter?.Flush();
     }
 
     /// <summary>
@@ -139,7 +140,8 @@ public class Parser
         var details = GrammarSymbols.TERMINALS.Contains(topOfStack) ? $"Expected a token of type {topOfStack}" : $"{GrammarSymbols.nonTerminalToErrorDetails[topOfStack]}";
         message += details;
 
-        syntaxErrorWriter?.WriteLine(message);    
+        syntaxErrorWriter?.WriteLine(message);
+        syntaxErrorStream?.Flush();
     }
 
     /// <summary>
