@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ASTGenerator\ASTGenerator.csproj" />
     <ProjectReference Include="..\LexicalAnalyzer\LexicalAnalyzer.csproj" />
   </ItemGroup>
 

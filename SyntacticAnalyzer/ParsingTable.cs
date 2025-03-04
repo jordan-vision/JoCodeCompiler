@@ -1,5 +1,5 @@
 ﻿
-using LexicalAnalyzer;
+using ASTGenerator;
 
 namespace SyntacticAnalyzer;
 
@@ -16,6 +16,7 @@ public class ParsingTable
     {
         ResetStack();
         GrammarSymbols.BuildDictionaries();
+        AttributeGrammarSymbols.BuildSemanticActionsDictionary();
 
         var parsingTableFilePath = Path.Combine(Directory.GetCurrentDirectory(), "parsingtable.tsv");
         var sr = new StreamReader(parsingTableFilePath);

@@ -18,7 +18,7 @@ public abstract class AST
         };
     }
 
-    public AST MakeSiblings(AST y)
+    private AST MakeSiblings(AST y)
     {
         var xSiblings = this;
 
@@ -42,7 +42,7 @@ public abstract class AST
         return ySiblings;
     }
 
-    public void AdoptChildren(AST y)
+    private void AdoptChildren(AST y)
     {
         if (leftmostChild != null)
         {
