@@ -3,7 +3,7 @@
 public abstract class AST
 {
     private AST leftmostSibling;
-    private AST? parent, rightSibling = null, leftmostChild;
+    private AST? parent = null, rightSibling = null, leftmostChild = null;
 
     public AST()
     {
@@ -86,11 +86,18 @@ public abstract class LeafNode : AST
     public string Lexeme { get { return lexeme; } set { lexeme = value; } }
 }
 
+public class EpsilonNode : LeafNode;
+public class IdNode : LeafNode;
+public class VisibilityNode : LeafNode;
+public class TypeNode : LeafNode;
+public class ReturnTypeNode : LeafNode;
 public class IntLitNode : LeafNode;
 public class FloatLitNode : LeafNode;
-public class IdNode: LeafNode;
-public class TypeNode : LeafNode;
-public class VoidNode : LeafNode;
+public class RelOpNode : LeafNode;
+public class AddOpNode : LeafNode;
+public class MultOpNode : LeafNode;
+public class SignNode : LeafNode;
+public class IdOrSelfNode : LeafNode;
 
 public class CompositeNode(string name) : AST
 {

@@ -10,7 +10,23 @@ public class AttributeGrammarSymbols
     {
         semanticActions = new()
         {
-            { "A", (s, n) => { s.Push(AST.MakeNode<IdNode>(n)); } }
+            { "PUSHEPSILON", (s, n) => { s.Push(AST.MakeNode<EpsilonNode>(n)); } },
+
+            { 
+                "POPUNTILEPSILON", (s, n) => 
+                {
+                    var children = new List<AST>();
+                    AST child = s.Pop();
+
+                    while (child is not EpsilonNode)
+                    {
+                        children.Add(child);
+                        child = s.Pop();
+                    } 
+
+                    s.Push(AST.MakeFamily(n, children));
+                }
+            },
         };
     }
 }
