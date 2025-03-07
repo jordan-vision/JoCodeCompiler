@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace ASTGenerator;
+﻿namespace ASTGenerator;
 
 public class AttributeGrammarSymbols
 {
@@ -12,7 +10,7 @@ public class AttributeGrammarSymbols
     {
         semanticActions = new()
         {
-            { "PUSHEPSILON", (s, n) => { s.Push(AST.MakeNode<EpsilonNode>(n)); } },
+            { "PUSHEPSILON", (s, n) => { s.Push(AST.MakeNode<EpsilonNode>()); } },
 
             { "PUSHID", (s, n) => { s.Push(AST.MakeNode<IdNode>(n)); } },
 

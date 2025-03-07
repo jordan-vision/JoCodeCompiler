@@ -6,9 +6,9 @@ public class SemanticStack
 
     public static bool PerformSemanticAction(string symbol, string lexeme)
     {
-        if (AttributeGrammarSymbols.SemanticActions.ContainsKey(symbol))
+        if (AttributeGrammarSymbols.SemanticActions.TryGetValue(symbol, out var value))
         {
-            AttributeGrammarSymbols.SemanticActions[symbol](semanticStack, lexeme);
+            value(semanticStack, lexeme);
             return true;
         }
 
@@ -35,5 +35,15 @@ public class SemanticStack
         }
 
         return (symbol[..3], symbol.Length > 3 ? symbol[3..] : "");
+    }
+
+    public static void ResetStack()
+    {
+        semanticStack = new();
+    }
+
+    public static int Count()
+    {
+        return semanticStack.Count;
     }
 }

@@ -111,7 +111,7 @@ public class ParsingTable
 
                 foreach (var word in derivation)
                 {
-                    if (word.Equals("EPSILON") || AttributeGrammarSymbols.SemanticActions.ContainsKey(word))
+                    if (word.Equals("EPSILON") || !(GrammarSymbols.TERMINALS.Contains(word) || GrammarSymbols.NONTERMINALS.Contains(word)))
                     {
                         continue;
                     }
@@ -196,9 +196,7 @@ public class ParsingTable
 
     public static void CheckSemanticAction(string lexeme)
     {
-        var topElement = stack.Peek();
-
-        if (!SemanticStack.PerformSemanticAction(topElement, lexeme))
+        if (stack.Count == 0 || !SemanticStack.PerformSemanticAction(stack.Peek(), lexeme))
         {
             return;
         }

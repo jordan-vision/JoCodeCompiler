@@ -3,14 +3,24 @@
 public abstract class AST
 {
     private AST leftmostSibling;
-    private AST? parent = null, rightSibling = null, leftmostChild = null;
+    private AST? parent = null, rightSibling = null;
+    protected AST? leftmostChild = null;
+
+    public AST? RightSibling => rightSibling;
 
     public AST()
     {
         leftmostSibling = this;
     }
 
-    public static T MakeNode<T>(string value) where T : LeafNode, new()
+    public override string ToString()
+    {
+        return GetString(0);
+    }
+
+    public abstract string GetString(int indent);
+
+    public static T MakeNode<T>(string value = "epsilon") where T : LeafNode, new()
     {
         return new T()
         {
@@ -84,6 +94,19 @@ public abstract class LeafNode : AST
     private string lexeme = "";
 
     public string Lexeme { get { return lexeme; } set { lexeme = value; } }
+
+    public override string GetString(int indent)
+    {
+        var result = "";
+
+        for (int i = 0; i < indent; i++)
+        {
+            result += " ";
+        }
+        result += lexeme;
+
+        return result;
+    }
 }
 
 public class EpsilonNode : LeafNode;
@@ -102,4 +125,26 @@ public class IdOrSelfNode : LeafNode;
 public class CompositeNode(string name) : AST
 {
     private string name = name;
+
+    public override string GetString(int indent)
+    {
+        var result = "";
+
+        for (int i = 0; i < indent; i++)
+        {
+            result += " ";
+        }
+        result += name;
+
+        var child = leftmostChild;
+
+        while (child != null)
+        {
+            result += "\n";
+            result += child.GetString(indent + 1);
+            child = child.RightSibling;
+        }
+
+        return result;
+    }
 }

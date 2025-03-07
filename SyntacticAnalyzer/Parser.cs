@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Lex = LexicalAnalyzer.LexicalAnalyzer;
+using ASTGen = ASTGenerator.ASTGenerator;
 
 namespace SyntacticAnalyzer;
 
@@ -22,6 +23,7 @@ public class Parser
         syntaxErrorWriter?.Close();
 
         Lex.OpenSourceFile(filename);
+        ASTGen.OpenSourceFile(filename);
 
         nextTokenFlag = false;
         isProgramSyntacticallyCorrect = true;
@@ -75,6 +77,8 @@ public class Parser
             WriteSyntaxError(ParsingTable.TopOfStack(), false);
             syntaxErrorWriter?.WriteLine("Analysis concluded with syntax errors. See above.");
         }
+
+        ASTGen.WriteAST();
 
         derivationWriter?.Close();
         syntaxErrorWriter?.Close();
