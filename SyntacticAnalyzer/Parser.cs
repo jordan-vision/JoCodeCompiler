@@ -66,7 +66,7 @@ public class Parser
                 return;
             }
 
-            ParsingTable.Derive(token.Type);
+            ParsingTable.Derive(token.Type, token.Lexeme);
 
         } while (!token.Type.Equals(GrammarSymbols.END));
 

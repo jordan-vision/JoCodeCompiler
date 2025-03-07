@@ -10,7 +10,7 @@ public abstract class AST
         leftmostSibling = this;
     }
 
-    public static AST MakeNode<T>(string value) where T : LeafNode, new()
+    public static T MakeNode<T>(string value) where T : LeafNode, new()
     {
         return new T()
         {
@@ -60,7 +60,7 @@ public abstract class AST
         }
     }
 
-    public static AST MakeFamily(string parentName, List<AST> children)
+    public static CompositeNode MakeFamily(string parentName, List<AST> children)
     {
         var node = new CompositeNode(parentName);
 

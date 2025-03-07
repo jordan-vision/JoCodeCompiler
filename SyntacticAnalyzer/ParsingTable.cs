@@ -53,25 +53,29 @@ public class ParsingTable
     /// Derive token from current stack
     /// </summary>
     /// <param name="thisToken">Terminal symbol to derive</param>
-    public static void Derive(string thisToken)
+    public static void Derive(string thisToken, string lexeme)
     {
         string topElement;
 
         do
         {
             topElement = stack.Peek();
+
             if (GrammarSymbols.TERMINALS.Contains(topElement))
             {
                 if (topElement == thisToken)
                 {
                     stack.Pop();
+                    CheckSemanticAction(lexeme);
                     return;
                 }
 
                 SkipError(thisToken.Equals(GrammarSymbols.END), thisToken);
+                CheckSemanticAction(lexeme);
                 return;
             }
-            else
+
+            else if (GrammarSymbols.NONTERMINALS.Contains(topElement))
             {
                 if (!parsingTable.TryGetValue((
                     Array.IndexOf(GrammarSymbols.NONTERMINALS, topElement),
@@ -79,6 +83,7 @@ public class ParsingTable
                     ), out var production) || production.Equals("POP"))
                 {
                     SkipError(thisToken.Equals(GrammarSymbols.END) || production != null && production.Equals("POP"), thisToken);
+                    CheckSemanticAction(lexeme);
                     return;
                 }
 
@@ -106,7 +111,7 @@ public class ParsingTable
 
                 foreach (var word in derivation)
                 {
-                    if (word.Equals("EPSILON"))
+                    if (word.Equals("EPSILON") || AttributeGrammarSymbols.SemanticActions.ContainsKey(word))
                     {
                         continue;
                     }
@@ -117,6 +122,9 @@ public class ParsingTable
                 Parser.WriteDerivation(derivationString);
 
             }
+
+            CheckSemanticAction(lexeme);
+
         } while (!GrammarSymbols.TERMINALS.Contains(topElement));
     }
 
@@ -184,5 +192,18 @@ public class ParsingTable
     public static string TopOfStack()
     {
         return stack.Peek();
+    }
+
+    public static void CheckSemanticAction(string lexeme)
+    {
+        var topElement = stack.Peek();
+
+        if (!AttributeGrammarSymbols.SemanticActions.ContainsKey(topElement))
+        {
+            return;
+        }
+
+        SemanticStack.PerformSemanticAction(topElement, lexeme);
+        stack.Pop();
     }
 }
