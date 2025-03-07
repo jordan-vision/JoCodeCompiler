@@ -198,12 +198,11 @@ public class ParsingTable
     {
         var topElement = stack.Peek();
 
-        if (!AttributeGrammarSymbols.SemanticActions.ContainsKey(topElement))
+        if (!SemanticStack.PerformSemanticAction(topElement, lexeme))
         {
             return;
         }
 
-        SemanticStack.PerformSemanticAction(topElement, lexeme);
         stack.Pop();
     }
 }

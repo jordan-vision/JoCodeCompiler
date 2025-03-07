@@ -13,40 +13,44 @@ public class AttributeGrammarSymbols
         semanticActions = new()
         {
             { "PUSHEPSILON", (s, n) => { s.Push(AST.MakeNode<EpsilonNode>(n)); } },
-            
+
             { "PUSHID", (s, n) => { s.Push(AST.MakeNode<IdNode>(n)); } },
 
             { "PUSHVISIBILITY", (s, n) => { s.Push(AST.MakeNode<VisibilityNode>(n)); } },
-            
+
             { "PUSHTYPE", (s, n) => { s.Push(AST.MakeNode<TypeNode>(n)); } },
 
             { "PUSHRETURNTYPE", (s, n) => { s.Push(AST.MakeNode<ReturnTypeNode>(n)); } },
-            
+
             { "PUSHINTLIT", (s, n) => { s.Push(AST.MakeNode<IntLitNode>(n)); } },
-            
+
             { "PUSHFLOATLIT", (s, n) => { s.Push(AST.MakeNode<FloatLitNode>(n)); } },
-            
+
             { "PUSHRELOP", (s, n) => { s.Push(AST.MakeNode<RelOpNode>(n)); } },
-            
+
             { "PUSHADDOP", (s, n) => { s.Push(AST.MakeNode<AddOpNode>(n)); } },
 
             { "PUSHMULTOP", (s, n) => { s.Push(AST.MakeNode<MultOpNode>(n)); } },
 
             { "PUSHSIGN", (s, n) => { s.Push(AST.MakeNode<SignNode>(n)); } },
-            
+
             { "PUSHIDORSELF", (s, n) => { s.Push(AST.MakeNode<IdOrSelfNode>(n)); } },
 
-            { "POP", (s, n) => { s.Push(AST.MakeFamily(n, [s.Pop()])); } },
+            {
+                "POP", (s, n) => { s.Push(AST.MakeFamily(n, [s.Pop()])); }
+            },
 
-            { "POP2", (s, n) => 
+            {
+                "POP2", (s, n) =>
                 {
                     List<AST> children = [s.Pop(), s.Pop()];
                     children.Reverse();
                     s.Push(AST.MakeFamily(n, children));
                 }
             },
-            
-            { "POP3", (s, n) => 
+
+            {
+                "POP3", (s, n) =>
                 {
                     List<AST> children = [s.Pop(), s.Pop(), s.Pop()];
                     children.Reverse();
@@ -54,8 +58,8 @@ public class AttributeGrammarSymbols
                 }
             },
 
-            { 
-                "POPUNTILEPSILON", (s, n) => 
+            {
+                "POPUNTILEPSILON", (s, n) =>
                 {
                     var children = new List<AST>();
                     AST? child = null;
