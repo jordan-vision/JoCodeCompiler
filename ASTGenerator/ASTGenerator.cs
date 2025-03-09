@@ -25,6 +25,7 @@ public class ASTGenerator
 
     public static void WriteAST()
     {
-        Console.WriteLine(SemanticStack.Count());
+        astWriter?.WriteLine(SemanticStack.WriteTree());
+        astWriter?.Flush();
     }
 }

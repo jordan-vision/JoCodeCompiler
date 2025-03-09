@@ -42,8 +42,8 @@ public class SemanticStack
         semanticStack = new();
     }
 
-    public static int Count()
+    public static string WriteTree()
     {
-        return semanticStack.Count;
+        return semanticStack.Peek().ToString();
     }
 }
