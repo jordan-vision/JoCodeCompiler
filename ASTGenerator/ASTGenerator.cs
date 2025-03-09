@@ -5,6 +5,10 @@ public class ASTGenerator
     private static FileStream? astStream;
     private static StreamWriter? astWriter;
 
+    /// <summary>
+    /// Create or overwrite, then open outast file
+    /// </summary>
+    /// <param name="filename">Name of source file without extension</param>
     public static void OpenSourceFile(string filename)
     {
         SemanticStack.ResetStack();

@@ -6,6 +6,9 @@ public class AttributeGrammarSymbols
 
     public static Dictionary<string, Action<Stack<AST>, string>> SemanticActions => semanticActions;
 
+    /// <summary>
+    /// Define all possible semantic actions
+    /// </summary>
     public static void BuildSemanticActionsDictionary()
     {
         semanticActions = new()

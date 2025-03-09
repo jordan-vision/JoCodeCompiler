@@ -8,6 +8,9 @@ public abstract class AST
 
     public AST? RightSibling => rightSibling;
 
+    /// <summary>
+    /// Default constructor
+    /// </summary>
     public AST()
     {
         leftmostSibling = this;
@@ -18,8 +21,19 @@ public abstract class AST
         return GetString(0);
     }
 
+    /// <summary>
+    /// Recursively write text representation of this AST node with all its children
+    /// </summary>
+    /// <param name="indent">Number of whitespaces before writing. Recursively increases</param>
+    /// <returns>Text representation of the AST</returns>
     public abstract string GetString(int indent);
 
+    /// <summary>
+    /// Create leaf node of given type
+    /// </summary>
+    /// <typeparam name="T">Type of the node to create</typeparam>
+    /// <param name="value">Lexeme of the leaf node.</param>
+    /// <returns></returns>
     public static T MakeNode<T>(string value = "epsilon") where T : LeafNode, new()
     {
         return new T()
@@ -28,6 +42,11 @@ public abstract class AST
         };
     }
 
+    /// <summary>
+    /// Make <paramref name="y"/> a sibling of this node.
+    /// </summary>
+    /// <param name="y">Other AST node</param>
+    /// <returns></returns>
     private AST MakeSiblings(AST y)
     {
         var xSiblings = this;
@@ -52,6 +71,10 @@ public abstract class AST
         return ySiblings;
     }
 
+    /// <summary>
+    /// Make <paramref name="y"/> a child of this node.
+    /// </summary>
+    /// <param name="y">Other AST node</param>
     private void AdoptChildren(AST y)
     {
         if (leftmostChild != null)
@@ -70,6 +93,12 @@ public abstract class AST
         }
     }
 
+    /// <summary>
+    /// Create composite node
+    /// </summary>
+    /// <param name="parentName">Name of the composite node</param>
+    /// <param name="children">List of all of the composite node's children</param>
+    /// <returns></returns>
     public static CompositeNode MakeFamily(string parentName, List<AST> children)
     {
         var node = new CompositeNode(parentName);
@@ -95,6 +124,11 @@ public abstract class LeafNode : AST
 
     public string Lexeme { get { return lexeme; } set { lexeme = value; } }
 
+    /// <summary>
+    /// Write indents followed by the lexeme of this node
+    /// </summary>
+    /// <param name="indent">Number of whitespaces to add before writing lexeme</param>
+    /// <returns>Text representation of this leaf node.</returns>
     public override string GetString(int indent)
     {
         var result = "";
@@ -126,6 +160,11 @@ public class CompositeNode(string name) : AST
 {
     private string name = name;
 
+    /// <summary>
+    /// Recursively write text representation of this AST node with all its children
+    /// </summary>
+    /// <param name="indent">Number of whitespaces to add before writing the name of this node</param>
+    /// <returns>Text representation of this AST</returns>
     public override string GetString(int indent)
     {
         var result = "";

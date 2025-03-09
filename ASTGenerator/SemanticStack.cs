@@ -4,6 +4,12 @@ public class SemanticStack
 {
     private static Stack<AST> semanticStack = new();
 
+    /// <summary>
+    /// Performs semantic action described by given symbol.
+    /// </summary>
+    /// <param name="symbol">Semantic action</param>
+    /// <param name="lexeme">If this is a PUSH action, the resulting leaf node should save this lexeme</param>
+    /// <returns>True if the semantic action was succesful, false otherwise</returns>
     public static bool PerformSemanticAction(string symbol, string lexeme)
     {
         if (AttributeGrammarSymbols.SemanticActions.TryGetValue(symbol, out var value))
@@ -22,6 +28,11 @@ public class SemanticStack
         return false;
     }
 
+    /// <summary>
+    /// Gets prefix and suffix for POP symbol
+    /// </summary>
+    /// <param name="symbol"></param>
+    /// <returns>(prefix of symbol, suffix of symbol)</returns>
     public static (string, string) SeparateSymbol(string symbol)
     {
         if (symbol.StartsWith("POP2") || symbol.StartsWith("POP3"))
@@ -42,6 +53,10 @@ public class SemanticStack
         semanticStack = new();
     }
 
+    /// <summary>
+    /// Write AST in outast file.
+    /// </summary>
+    /// <returns>Text representation of top of semantic stack</returns>
     public static string WriteTree()
     {
         return semanticStack.Peek().ToString();
