@@ -21,7 +21,7 @@ public class SemanticStack
         if (symbol.StartsWith("POP"))
         {
             var (prefix, suffix) = SeparateSymbol(symbol);
-            AttributeGrammarSymbols.SemanticActions[prefix](semanticStack, suffix.ToLower());
+            AttributeGrammarSymbols.SemanticActions[prefix](semanticStack, suffix);
             return true;
         }
 
