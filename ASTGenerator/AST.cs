@@ -508,6 +508,26 @@ public class ArraySizesNode(string label) : AST(label)
 
         visitor.Visit(this);
     }
+
+    public string SizesString()
+    {
+        var returnValue = "";
+
+        foreach (var arraySize in GetChildren())
+        {
+            if (arraySize is EmptyArraySizeNode)
+            {
+                returnValue += "[]";
+            }
+
+            if (arraySize is IntLitNode)
+            {
+                returnValue += $"[{arraySize.Label}]";
+            }
+        }
+
+        return returnValue;
+    }
 }
 
 public class VarDeclNode(string label) : AST(label)

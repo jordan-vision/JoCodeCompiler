@@ -107,18 +107,8 @@ public class SymbolTableGeneratorVisitor : IVisitor
                     var parameterDefinition = parameter.GetChildren();
                     parameterTypeList += parameterTypeList == "" ? parameterDefinition[1] : $", {parameterDefinition[1]}";
 
-                    foreach (var arraySize in parameterDefinition[2].GetChildren())
-                    {
-                        if (arraySize is EmptyArraySizeNode)
-                        {
-                            parameterTypeList += "[]";
-                        }
-
-                        if (arraySize is IntLitNode)
-                        {
-                            parameterTypeList += $"[{arraySize.Label}]";
-                        }
-                    }
+                    parameterTypeList += ((ArraySizesNode)parameterDefinition[2]).SizesString();
+                    
                 }
 
                 node.SymbolTable.AddEntry(child.SymbolTable.Name, "function", $"{funcHead.GetChildren()[2]}:{parameterTypeList}", child.SymbolTable);
@@ -145,6 +135,15 @@ public class SymbolTableGeneratorVisitor : IVisitor
     {
         var classDeclaration = node.GetChildren();
         node.SymbolTable = new SymbolTable(classDeclaration[0].Label);
+
+        foreach(var member in classDeclaration[2].GetChildren())
+        {
+            if (member is VarDeclNode)
+            {
+                var varDecl = member.GetChildren();
+                node.SymbolTable.AddEntry(varDecl[0].Label, "attribute", "Finish this later", null);
+            }
+        }
     }
 
     public void Visit(FuncDefsNode node)
