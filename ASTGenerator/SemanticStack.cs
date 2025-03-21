@@ -61,4 +61,9 @@ public class SemanticStack
     {
         return semanticStack.Peek().ToString();
     }
+
+    public static void Traverse(IVisitor visitor)
+    {
+        semanticStack.Peek().Accept(visitor);
+    }
 }

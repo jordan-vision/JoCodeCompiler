@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -9,8 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ASTGenerator\ASTGenerator.csproj" />
-    <ProjectReference Include="..\LexicalAnalyzer\LexicalAnalyzer.csproj" />
-    <ProjectReference Include="..\SemanticAnalyzer\SemanticAnalyzer.csproj" />
   </ItemGroup>
 
 </Project>

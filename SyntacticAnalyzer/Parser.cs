@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Lex = LexicalAnalyzer.LexicalAnalyzer;
 using ASTGen = ASTGenerator.ASTGenerator;
+using Sem = SemanticAnalyzer.SemanticAnalyzer;
 
 namespace SyntacticAnalyzer;
 
@@ -79,6 +80,7 @@ public class Parser
         }
 
         ASTGen.WriteAST();
+        Sem.TraverseAST();
 
         derivationWriter?.Close();
         syntaxErrorWriter?.Close();
