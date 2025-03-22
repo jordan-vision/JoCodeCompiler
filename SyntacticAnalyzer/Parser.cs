@@ -25,6 +25,7 @@ public class Parser
 
         Lex.OpenSourceFile(filename);
         ASTGen.OpenSourceFile(filename);
+        Sem.OpenSourceFile(filename);
 
         nextTokenFlag = false;
         isProgramSyntacticallyCorrect = true;

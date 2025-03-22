@@ -10,8 +10,6 @@ public abstract class AST
 
     public AST? RightSibling => rightSibling;
 
-    public AST? LeftmostChild => leftmostChild;
-
     public string Label => label;
 
     public ISymbolTable? SymbolTable { get { return symbolTable; } set { symbolTable = value; } }
@@ -164,6 +162,18 @@ public abstract class AST
         }
 
         return list;
+    }
+
+    public AST GetRootNode()
+    {
+        var node = this;
+
+        while (node.parent != null)
+        {
+            node = node.parent;
+        }
+
+        return node;
     }
 
     public abstract void Accept(IVisitor visitor);
@@ -463,6 +473,26 @@ public class FuncHeadNode(string label) : AST(label)
 
         visitor.Visit(this);
     }
+
+    public string GetTypeString()
+    {
+        var parameters = GetChildren()[1];
+        string returnValue = "";
+
+        foreach (var parameter in parameters.GetChildren())
+        {
+            if (parameter is not FParamNode)
+            {
+                continue;
+            }
+
+            var parameterDefinition = parameter.GetChildren();
+            returnValue += returnValue == "" ? parameterDefinition[1] : $", {parameterDefinition[1]}";
+            returnValue += ((ArraySizesNode)parameterDefinition[2]).GetSizesString();
+        }
+
+        return $"({returnValue}):{GetChildren()[2].Label}";
+    }
 }
 
 public class CParamsNode(string label) : AST(label)
@@ -477,6 +507,25 @@ public class CParamsNode(string label) : AST(label)
         }
 
         visitor.Visit(this);
+    }
+
+    public string GetTypeString()
+    {
+        var returnValue = "";
+
+        foreach (var parameter in GetChildren())
+        {
+            if (parameter is not FParamNode)
+            {
+                continue;
+            }
+
+            var parameterDefinition = parameter.GetChildren();
+            returnValue += returnValue == "" ? parameterDefinition[1] : $", {parameterDefinition[1]}";
+            returnValue += ((ArraySizesNode)parameterDefinition[2]).GetSizesString();
+        }
+
+        return $"({returnValue})";
     }
 }
 
@@ -509,7 +558,7 @@ public class ArraySizesNode(string label) : AST(label)
         visitor.Visit(this);
     }
 
-    public string SizesString()
+    public string GetSizesString()
     {
         var returnValue = "";
 

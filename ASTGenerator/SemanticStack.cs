@@ -66,4 +66,9 @@ public class SemanticStack
     {
         semanticStack.Peek().Accept(visitor);
     }
+
+    public static string? WriteSymbolTable()
+    {
+        return semanticStack.Peek().SymbolTable?.ToString();
+    }
 }
