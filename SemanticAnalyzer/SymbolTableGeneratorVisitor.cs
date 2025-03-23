@@ -95,8 +95,19 @@ public class SymbolTableGeneratorVisitor : IVisitor
                     continue;
                 }
 
-                node.SymbolTable.AddEntry(child.SymbolTable.Name, "function", ((FuncHeadNode)funcHead).GetTypeString(), child.SymbolTable);
+                var kind = (child.SymbolTable.Name == "main") ? "main function" : "function";
+                node.SymbolTable.AddEntry(child.SymbolTable.Name, kind, ((FuncHeadNode)funcHead).GetTypeString(), child.SymbolTable);
             }
+        }
+
+        var mainFunctions = node.SymbolTable.GetEntriesOfKind("main function").Count;
+        if (mainFunctions == 0)
+        {
+            SemanticAnalyzer.WriteSemanticError("No main function.");
+        } 
+        else if (mainFunctions > 1)
+        {
+            SemanticAnalyzer.WriteSemanticError("Multiple main functions.");
         }
     }
 

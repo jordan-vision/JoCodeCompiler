@@ -31,16 +31,19 @@ class SemanticCheckVisitor : IVisitor
 
     public void Visit(IntLitNode node)
     {
+        node.Type = "int";
         return;
     }
 
     public void Visit(FloatLitNode node)
     {
+        node.Type = "float";
         return;
     }
 
     public void Visit(RelOpNode node)
     {
+        node.Type = "boolean";
         return;
     }
 
@@ -66,53 +69,7 @@ class SemanticCheckVisitor : IVisitor
 
     public void Visit(ProgramNode node)
     {
-        if (node.SymbolTable == null)
-        {
-            return;
-        }
-
-        foreach (var child in node.GetChildren())
-        {
-            // Linking method implementations to their respective classes
-            if (child is ImplDefNode)
-            {
-                if (child.SymbolTable == null)
-                {
-                    continue;
-                }
-
-                var name = child.GetChildren()[0].Label;
-
-                if (!node.SymbolTable.DoesEntryExist(name, "class", ""))
-                {
-                    SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {name}.");
-                    continue;
-                }
-
-                var classTable = node.SymbolTable.GetEntry(name, "class", "").Link;
-
-                if (classTable == null)
-                {
-                    continue;
-                }
-
-                foreach (var entry in child.SymbolTable.GetEntriesOfKind("method").Union(child.SymbolTable.GetEntriesOfKind("constructor")))
-                {
-                    if (!classTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
-                    {
-                        SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {entry.Kind} {classTable.Name}::{entry.Name} -> {entry.Type}.");
-                        continue;
-                    }
-
-                    if (entry.Link == null)
-                    {
-                        continue;
-                    }
-
-                    classTable.CreateLink(entry.Name, entry.Kind, entry.Type, entry.Link);
-                }
-            }
-        }
+        return;
     }
 
     public void Visit(ParentsNode node)
@@ -132,45 +89,7 @@ class SemanticCheckVisitor : IVisitor
 
     public void Visit(ClassDeclNode node)
     {
-        var classDeclaration = node.GetChildren();
-
-        var globalTable = node.GetRootNode().SymbolTable;
-
-        if (globalTable == null || node.SymbolTable == null)
-        {
-            return;
-        }
-
-        foreach (var parent in classDeclaration[1].GetChildren())
-        {
-            if (parent is not IdNode)
-            {
-                continue;
-            }
-
-            var parentClassTable = globalTable.GetEntry(parent.Label, "class", "").Link;
-
-            if (parentClassTable == null)
-            {
-                continue;
-            }
-
-            foreach (var entry in parentClassTable.Entries)
-            {
-                if (parentClassTable.DoesEntryExist(node.SymbolTable.Name, "inherited", ""))
-                {
-                    SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {parentClassTable.Name} -> {node.SymbolTable.Name}");
-                }
-                else if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
-                {
-                    SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type}");
-                } 
-                else
-                {
-                    node.SymbolTable.AddEntry(entry.Name, entry.Kind, entry.Type, entry.Link);
-                }
-            }
-        }
+        return;
     }
 
     public void Visit(FuncDefsNode node)

@@ -33,7 +33,9 @@ public class SemanticAnalyzer
     public static void TraverseAST()
     {
         SemanticStack.Traverse(new SymbolTableGeneratorVisitor());
+        SemanticStack.Traverse(new ImplementationAndInheritanceVisitor());
         SemanticStack.Traverse(new SemanticCheckVisitor());
+
         Console.Write(SemanticStack.WriteSymbolTable());
     }
 

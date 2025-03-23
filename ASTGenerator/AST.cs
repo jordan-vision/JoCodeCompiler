@@ -5,12 +5,14 @@ public abstract class AST
     private AST leftmostSibling;
     private AST? parent = null, rightSibling = null;
     protected AST? leftmostChild = null;
-    protected string label;
+    protected string label, type;
     protected ISymbolTable? symbolTable = null;
 
     public AST? RightSibling => rightSibling;
 
     public string Label => label;
+
+    public string Type { get { return type; } set { Type = type; } }
 
     public ISymbolTable? SymbolTable { get { return symbolTable; } set { symbolTable = value; } }
 
