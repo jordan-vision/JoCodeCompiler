@@ -96,6 +96,8 @@ class ImplementationAndInheritanceVisitor : IVisitor
                     continue;
                 }
 
+                child.SymbolTable.AddEntry(classTable.Name, "class", "", classTable);
+
                 foreach (var entry in child.SymbolTable.GetEntriesOfKind("method").Union(child.SymbolTable.GetEntriesOfKind("constructor")))
                 {
                     if (!classTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
@@ -258,7 +260,17 @@ class ImplementationAndInheritanceVisitor : IVisitor
         return;
     }
 
-    public void Visit(ParamsOrIndicesNode node)
+    public void Visit(ParamsNode node)
+    {
+        return;
+    }
+
+    public void Visit(IndiceNode node)
+    {
+        return;
+    }
+
+    public void Visit(NoParamsOrIndicesNode node)
     {
         return;
     }

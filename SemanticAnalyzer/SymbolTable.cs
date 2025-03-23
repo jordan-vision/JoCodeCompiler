@@ -2,14 +2,17 @@
 
 namespace SemanticAnalyzer;
 
-public class SymbolTable(string name) : ISymbolTable
+public class SymbolTable(string name, AST astNode) : ISymbolTable
 {
     private string name = name;
-    private List<Entry> entries = new();
+    private List<Entry> entries = [];
+    private AST astNode = astNode;
 
     public string Name { get { return name; } set { name = value; } }
 
     public List<Entry> Entries => entries;
+
+    public AST ASTNode => astNode;
 
     public void AddEntry(string name, string kind, string type, ISymbolTable? link)
     {
@@ -35,6 +38,11 @@ public class SymbolTable(string name) : ISymbolTable
     public Entry GetEntry(string name, string kind, string type)
     {
         return entries.First(e => e.Name.Equals(name) && e.Kind.Equals(kind) && e.Type.Equals(type));
+    }
+
+    public Entry GetEntryWithLink(ISymbolTable link)
+    {
+        return entries.First(e => e.Link == link);
     }
 
     public void CreateLink(string name, string kind, string type, ISymbolTable link)

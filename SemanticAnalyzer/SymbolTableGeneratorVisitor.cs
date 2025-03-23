@@ -66,7 +66,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
     public void Visit(ProgramNode node)
     {
-        node.SymbolTable = new SymbolTable("global");
+        node.SymbolTable = new SymbolTable("global", node);
 
         foreach (var child in node.GetChildren())
         {
@@ -129,7 +129,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
     public void Visit(ClassDeclNode node)
     {
         var classDeclaration = node.GetChildren();
-        node.SymbolTable = new SymbolTable(classDeclaration[0].Label);
+        node.SymbolTable = new SymbolTable(classDeclaration[0].Label, node);
 
         foreach (var parent in classDeclaration[1].GetChildren())
         {
@@ -177,13 +177,13 @@ public class SymbolTableGeneratorVisitor : IVisitor
     public void Visit(ImplDefNode node)
     {
         var implDef = node.GetChildren();
-        node.SymbolTable = new SymbolTable(implDef[0].Label);
+        node.SymbolTable = new SymbolTable(implDef[0].Label, node);
 
         foreach (var funcDef in implDef[1].GetChildren())
         {
             if (funcDef.SymbolTable == null)
             {
-                return;
+                continue;
             }
 
             var funcHead = funcDef.GetChildren()[0];
@@ -208,12 +208,27 @@ public class SymbolTableGeneratorVisitor : IVisitor
         var funcHead = funcDef[0];
 
         var name = "";
+        var parameters = funcHead;
+
         if (funcHead is FuncHeadNode)
         {
             name = funcHead.GetChildren()[0].Label;
+            parameters = funcHead.GetChildren()[1];
         }
 
-        node.SymbolTable = new SymbolTable(name);
+        node.SymbolTable = new SymbolTable(name, node);
+       
+        foreach (var param in parameters.GetChildren())
+        {
+            if (param is not FParamNode)
+            {
+                continue;
+            }
+
+            var parameter = param.GetChildren();
+            var type = parameter[1].Label + ((ArraySizesNode)parameter[2]).GetSizesString();
+            node.SymbolTable.AddEntry(parameter[0].Label, "parameter", type, null);
+        }
 
         foreach (var varDecl in funcDef[1].GetChildren())
         {
@@ -223,8 +238,8 @@ public class SymbolTableGeneratorVisitor : IVisitor
             }
 
             var varDeclChildren = varDecl.GetChildren();
-            var type = varDeclChildren[1].ToString() + ((ArraySizesNode)varDeclChildren[2]).GetSizesString();
-            node.SymbolTable.AddEntry(varDeclChildren[0].Label, "local variable", type, null);
+            var type = varDeclChildren[1].Label + ((ArraySizesNode)varDeclChildren[2]).GetSizesString();
+            node.SymbolTable.AddEntry(varDeclChildren[0].Label, "localvar", type, null);
         }
     }
 
@@ -298,7 +313,17 @@ public class SymbolTableGeneratorVisitor : IVisitor
         return;
     }
 
-    public void Visit(ParamsOrIndicesNode node)
+    public void Visit(ParamsNode node)
+    {
+        return;
+    }
+
+    public void Visit(IndiceNode node)
+    {
+        return;
+    }
+
+    public void Visit(NoParamsOrIndicesNode node)
     {
         return;
     }

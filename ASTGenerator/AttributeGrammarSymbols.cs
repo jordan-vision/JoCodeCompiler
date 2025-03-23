@@ -147,7 +147,11 @@ public class AttributeGrammarSymbols
 
             { "NOTOP", typeof(NotOpNode) },
 
-            { "PARAMSORINDICES", typeof(ParamsOrIndicesNode) },
+            { "PARAMS", typeof(ParamsNode) },
+
+            { "INDICE", typeof(IndiceNode) },
+
+            { "NOPARAMSORINDICES", typeof(NoParamsOrIndicesNode) },
 
             { "VAR", typeof(VarNode) },
 

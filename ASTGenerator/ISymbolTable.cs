@@ -6,6 +6,8 @@ public interface ISymbolTable
 
     List<Entry> Entries { get; }
 
+    AST ASTNode { get; }
+
     void AddEntry(string name, string kind, string type, ISymbolTable? link);
 
     bool DoesEntryExist(string name, string kind, string type);
@@ -13,6 +15,8 @@ public interface ISymbolTable
     List<Entry> GetEntriesOfKind(string kind);
 
     Entry GetEntry(string name, string kind, string type);
+
+    Entry GetEntryWithLink(ISymbolTable link);
 
     void CreateLink(string name, string kind, string type, ISymbolTable link);
 

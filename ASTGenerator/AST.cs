@@ -5,14 +5,16 @@ public abstract class AST
     private AST leftmostSibling;
     private AST? parent = null, rightSibling = null;
     protected AST? leftmostChild = null;
-    protected string label, type;
+    protected string label, type = "", kind = "";
     protected ISymbolTable? symbolTable = null;
 
-    public AST? RightSibling => rightSibling;
+    public AST? Parent => parent;
 
     public string Label => label;
 
-    public string Type { get { return type; } set { Type = type; } }
+    public string Type { get { return type; } set { type = value; } }
+
+    public string Kind { get { return kind; } set { kind = value; } }
 
     public ISymbolTable? SymbolTable { get { return symbolTable; } set { symbolTable = value; } }
 
@@ -716,9 +718,39 @@ public class NotOpNode(string label) : AST(label)
     }
 }
 
-public class ParamsOrIndicesNode(string label) : AST(label)
+public class ParamsNode(string label) : AST(label)
 {
-    public ParamsOrIndicesNode() : this("paramsorindices") { }
+    public ParamsNode() : this("params") { }
+
+    public override void Accept(IVisitor visitor)
+    {
+        foreach (var child in GetChildren())
+        {
+            child.Accept(visitor);
+        }
+
+        visitor.Visit(this);
+    }
+}
+
+public class IndiceNode(string label) : AST(label)
+{
+    public IndiceNode() : this("indice") { }
+
+    public override void Accept(IVisitor visitor)
+    {
+        foreach (var child in GetChildren())
+        {
+            child.Accept(visitor);
+        }
+
+        visitor.Visit(this);
+    }
+}
+
+public class NoParamsOrIndicesNode(string label) : AST(label)
+{
+    public NoParamsOrIndicesNode() : this("noparamsorindices") { }
 
     public override void Accept(IVisitor visitor)
     {

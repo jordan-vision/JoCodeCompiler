@@ -70,7 +70,11 @@ public interface IVisitor
 
     void Visit(NotOpNode node);
 
-    void Visit(ParamsOrIndicesNode node);
+    void Visit(ParamsNode node);
+
+    void Visit(IndiceNode node);
+
+    void Visit(NoParamsOrIndicesNode node);
 
     void Visit(VarNode node);
 
