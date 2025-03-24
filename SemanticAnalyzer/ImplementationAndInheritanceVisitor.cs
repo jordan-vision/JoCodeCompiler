@@ -157,13 +157,15 @@ class ImplementationAndInheritanceVisitor : IVisitor
                 continue;
             }
 
+            if (parentClassTable.DoesEntryExist(node.SymbolTable.Name, "inherited", ""))
+            {
+                SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {parentClassTable.Name} -> {node.SymbolTable.Name}", node.Position);
+                continue;
+            }
+
             foreach (var entry in parentClassTable.Entries)
             {
-                if (parentClassTable.DoesEntryExist(node.SymbolTable.Name, "inherited", ""))
-                {
-                    SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {parentClassTable.Name} -> {node.SymbolTable.Name}", node.Position);
-                }
-                else if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
+                if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
                 {
                     SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type}", node.Position);
                 } 

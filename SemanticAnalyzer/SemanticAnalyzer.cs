@@ -44,11 +44,11 @@ public class SemanticAnalyzer
 
     public static void WriteSemanticError(string message, (int, int) position)
     {
-        semanticErrorsWriter?.WriteLine($"Semantic error. {message} line {position.Item1}, column {position.Item2}");
+        semanticErrorsWriter?.WriteLine($"Semantic error. {message} line {position.Item1}, column {position.Item2}\n");
     }
 
     public static void WriteWarning(string message, (int, int) position)
     {
-        semanticErrorsWriter?.WriteLine($"Warning. {message} line {position.Item1}, column {position.Item2}");
+        semanticErrorsWriter?.WriteLine($"Warning. {message} line {position.Item1}, column {position.Item2}\n");
     }
 }
