@@ -1,14 +1,20 @@
-﻿namespace ASTGenerator;
+﻿using System.Xml.Linq;
+
+namespace ASTGenerator;
 
 public abstract class AST
 {
     private AST leftmostSibling;
     private AST? parent = null, rightSibling = null;
+    private (int, int) positionInFile;
+
     protected AST? leftmostChild = null;
     protected string label, type = "", kind = "";
     protected ISymbolTable? symbolTable = null;
 
     public AST? Parent => parent;
+
+    public (int, int) Position => positionInFile;
 
     public string Label => label;
 
@@ -18,10 +24,11 @@ public abstract class AST
 
     public ISymbolTable? SymbolTable { get { return symbolTable; } set { symbolTable = value; } }
 
-    public AST(string label)
+    public AST(string label, (int, int) positionInFile)
     {
         leftmostSibling = this;
         this.label = label;
+        this.positionInFile = positionInFile;
     }
 
     public override string ToString()
@@ -59,11 +66,12 @@ public abstract class AST
     /// <typeparam name="T">Type of the node to create</typeparam>
     /// <param name="value">Lexeme of the leaf node.</param>
     /// <returns></returns>
-    public static T MakeNode<T>(string label = "epsilon") where T : AST, new()
+    public static T MakeNode<T>(string label, (int, int) positionInFile) where T : AST, new()
     {
         return new T()
         {
             label = label.ToLower(),
+            positionInFile = positionInFile,
         };
     }
 
@@ -128,11 +136,11 @@ public abstract class AST
     {
         var method = typeof(AST).GetMethod("MakeNode");
         var genericMethod = method?.MakeGenericMethod([AttributeGrammarSymbols.NameToType[parent]]);
-        var node = (AST?)genericMethod?.Invoke(null, [parent.ToLower()]);
+        var node = (AST?)genericMethod?.Invoke(null, [parent.ToLower(), children[0].Position]);
 
         if (node == null)
         {
-            return new EpsilonNode("ERROR");
+            return new EpsilonNode("ERROR", (0, 0));
         }
 
         return MakeFamily(node, children);
@@ -183,9 +191,9 @@ public abstract class AST
     public abstract void Accept(IVisitor visitor);
 }
 
-public class EpsilonNode(string label) : AST(label)
+public class EpsilonNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public EpsilonNode() : this("epsilon") { }
+    public EpsilonNode() : this("epsilon", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -193,9 +201,9 @@ public class EpsilonNode(string label) : AST(label)
     }
 }
 
-public class IdNode(string label) : AST(label)
+public class IdNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public IdNode() : this("id") { }
+    public IdNode() : this("id", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -203,9 +211,9 @@ public class IdNode(string label) : AST(label)
     }
 }
 
-public class VisibilityNode (string label) : AST(label)
+public class VisibilityNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public VisibilityNode() : this("visibility") { }
+    public VisibilityNode() : this("visibility", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -213,9 +221,9 @@ public class VisibilityNode (string label) : AST(label)
     }
 }
 
-public class TypeNode (string label) : AST(label)
+public class TypeNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public TypeNode() : this("type") { }
+    public TypeNode() : this("type", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -223,9 +231,9 @@ public class TypeNode (string label) : AST(label)
     }
 }
 
-public class ReturnTypeNode (string label) : AST(label)
+public class ReturnTypeNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ReturnTypeNode() : this("returntype") { }
+    public ReturnTypeNode() : this("returntype", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -233,9 +241,9 @@ public class ReturnTypeNode (string label) : AST(label)
     }
 }
 
-public class IntLitNode (string label) : AST(label)
+public class IntLitNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public IntLitNode() : this("intlit") { }
+    public IntLitNode() : this("intlit", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -243,9 +251,9 @@ public class IntLitNode (string label) : AST(label)
     }
 }
 
-public class FloatLitNode (string label) : AST(label)
+public class FloatLitNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public FloatLitNode() : this("floatlit") { }
+    public FloatLitNode() : this("floatlit", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -253,9 +261,9 @@ public class FloatLitNode (string label) : AST(label)
     }
 }
 
-public class RelOpNode (string label) : AST(label)
+public class RelOpNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public RelOpNode() : this("relop") { }
+    public RelOpNode() : this("relop", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -269,9 +277,9 @@ public class RelOpNode (string label) : AST(label)
     }
 }
 
-public class AddOpNode (string label) : AST(label)
+public class AddOpNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public AddOpNode() : this("addop") { }
+    public AddOpNode() : this("addop", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -284,9 +292,9 @@ public class AddOpNode (string label) : AST(label)
     }
 }
 
-public class MultOpNode (string label) : AST(label)
+public class MultOpNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public MultOpNode() : this("multop") { }
+    public MultOpNode() : this("multop", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -299,9 +307,9 @@ public class MultOpNode (string label) : AST(label)
     }
 }
 
-public class SignNode (string label) : AST(label)
+public class SignNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public SignNode() : this("sign") { }
+    public SignNode() : this("sign", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -314,9 +322,9 @@ public class SignNode (string label) : AST(label)
     }
 }
 
-public class IdOrSelfNode (string label) : AST(label)
+public class IdOrSelfNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public IdOrSelfNode() : this("idorself") { }
+    public IdOrSelfNode() : this("idorself", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -329,9 +337,9 @@ public class IdOrSelfNode (string label) : AST(label)
     }
 }
 
-public class ProgramNode (string label) : AST(label)
+public class ProgramNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ProgramNode() : this("program") { }
+    public ProgramNode() : this("program", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -344,9 +352,9 @@ public class ProgramNode (string label) : AST(label)
     }
 }
 
-public class ParentsNode (string label) : AST(label)
+public class ParentsNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ParentsNode() : this("parents") { }
+    public ParentsNode() : this("parents", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -359,9 +367,9 @@ public class ParentsNode (string label) : AST(label)
     }
 }
 
-public class ClassMembersNode (string label) : AST(label)
+public class ClassMembersNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ClassMembersNode() : this("classmembers") { }
+    public ClassMembersNode() : this("classmembers", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -374,9 +382,9 @@ public class ClassMembersNode (string label) : AST(label)
     }
 }
 
-public class ClassMemberNode(string label) : AST(label)
+public class ClassMemberNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ClassMemberNode() : this("classmember") { }
+    public ClassMemberNode() : this("classmember", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -389,9 +397,9 @@ public class ClassMemberNode(string label) : AST(label)
     }
 }
 
-public class ClassDeclNode (string label) : AST(label)
+public class ClassDeclNode (string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ClassDeclNode() : this("classdecl") { }
+    public ClassDeclNode() : this("classdecl", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -404,9 +412,9 @@ public class ClassDeclNode (string label) : AST(label)
     }
 }
 
-public class FuncDefsNode(string label) : AST(label)
+public class FuncDefsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public FuncDefsNode() : this("funcdefs") { }
+    public FuncDefsNode() : this("funcdefs", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -419,9 +427,9 @@ public class FuncDefsNode(string label) : AST(label)
     }
 }
 
-public class ImplDefNode(string label) : AST(label)
+public class ImplDefNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ImplDefNode() : this("impldef") { }
+    public ImplDefNode() : this("impldef", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -434,9 +442,9 @@ public class ImplDefNode(string label) : AST(label)
     }
 }
 
-public class FuncDefNode(string label) : AST(label)
+public class FuncDefNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public FuncDefNode() : this("funcdef") { }
+    public FuncDefNode() : this("funcdef", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -449,9 +457,9 @@ public class FuncDefNode(string label) : AST(label)
     }
 }
 
-public class FParamsNode(string label) : AST(label)
+public class FParamsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public FParamsNode() : this("fparams") { }
+    public FParamsNode() : this("fparams", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -464,9 +472,9 @@ public class FParamsNode(string label) : AST(label)
     }
 }
 
-public class FuncHeadNode(string label) : AST(label)
+public class FuncHeadNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public FuncHeadNode() : this("funchead") { }
+    public FuncHeadNode() : this("funchead", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -499,9 +507,9 @@ public class FuncHeadNode(string label) : AST(label)
     }
 }
 
-public class CParamsNode(string label) : AST(label)
+public class CParamsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public CParamsNode() : this("cparams") { }
+    public CParamsNode() : this("cparams", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -533,9 +541,9 @@ public class CParamsNode(string label) : AST(label)
     }
 }
 
-public class LocalVarDeclOrStatsNode(string label) : AST(label)
+public class LocalVarDeclOrStatsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public LocalVarDeclOrStatsNode() : this("localvardeclorstats") { }
+    public LocalVarDeclOrStatsNode() : this("localvardeclorstats", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -548,9 +556,9 @@ public class LocalVarDeclOrStatsNode(string label) : AST(label)
     }
 }
 
-public class ArraySizesNode(string label) : AST(label)
+public class ArraySizesNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ArraySizesNode() : this("arraysizes") { }
+    public ArraySizesNode() : this("arraysizes", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -583,9 +591,9 @@ public class ArraySizesNode(string label) : AST(label)
     }
 }
 
-public class VarDeclNode(string label) : AST(label)
+public class VarDeclNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public VarDeclNode() : this("vardecl") { }
+    public VarDeclNode() : this("vardecl", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -598,9 +606,9 @@ public class VarDeclNode(string label) : AST(label)
     }
 }
 
-public class IfStatNode(string label) : AST(label)
+public class IfStatNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public IfStatNode() : this("ifstat") { }
+    public IfStatNode() : this("ifstat", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -613,9 +621,9 @@ public class IfStatNode(string label) : AST(label)
     }
 }
 
-public class ReadStatNode(string label) : AST(label)
+public class ReadStatNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ReadStatNode() : this("readstat") { }
+    public ReadStatNode() : this("readstat", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -628,9 +636,9 @@ public class ReadStatNode(string label) : AST(label)
     }
 }
 
-public class ReturnStatNode(string label) : AST(label)
+public class ReturnStatNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ReturnStatNode() : this("returnstat") { }
+    public ReturnStatNode() : this("returnstat", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -643,9 +651,9 @@ public class ReturnStatNode(string label) : AST(label)
     }
 }
 
-public class WhileStatNode(string label) : AST(label)
+public class WhileStatNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public WhileStatNode() : this("whilestat") { }
+    public WhileStatNode() : this("whilestat", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -658,9 +666,9 @@ public class WhileStatNode(string label) : AST(label)
     }
 }
 
-public class WriteStatNode(string label) : AST(label)
+public class WriteStatNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public WriteStatNode() : this("writestat") { }
+    public WriteStatNode() : this("writestat", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -673,9 +681,9 @@ public class WriteStatNode(string label) : AST(label)
     }
 }
 
-public class StatementsNode(string label) : AST(label)
+public class StatementsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public StatementsNode() : this("statements") { }
+    public StatementsNode() : this("statements", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -688,9 +696,9 @@ public class StatementsNode(string label) : AST(label)
     }
 }
 
-public class EmptyBlockNode(string label) : AST(label)
+public class EmptyBlockNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public EmptyBlockNode() : this("emptyblock") { }
+    public EmptyBlockNode() : this("emptyblock", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -703,9 +711,9 @@ public class EmptyBlockNode(string label) : AST(label)
     }
 }
 
-public class NotOpNode(string label) : AST(label)
+public class NotOpNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public NotOpNode() : this("notop") { }
+    public NotOpNode() : this("notop", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -718,9 +726,9 @@ public class NotOpNode(string label) : AST(label)
     }
 }
 
-public class ParamsNode(string label) : AST(label)
+public class ParamsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public ParamsNode() : this("params") { }
+    public ParamsNode() : this("params", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -733,9 +741,9 @@ public class ParamsNode(string label) : AST(label)
     }
 }
 
-public class IndiceNode(string label) : AST(label)
+public class IndiceNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public IndiceNode() : this("indice") { }
+    public IndiceNode() : this("indice", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -748,9 +756,9 @@ public class IndiceNode(string label) : AST(label)
     }
 }
 
-public class NoParamsOrIndicesNode(string label) : AST(label)
+public class NoParamsOrIndicesNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public NoParamsOrIndicesNode() : this("noparamsorindices") { }
+    public NoParamsOrIndicesNode() : this("noparamsorindices", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -763,9 +771,127 @@ public class NoParamsOrIndicesNode(string label) : AST(label)
     }
 }
 
-public class VarNode(string label) : AST(label)
+public class VarNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public VarNode() : this("var") { }
+    public VarNode() : this("var", (0, 0)) { }
+
+    public override void Accept(IVisitor visitor)
+    {
+        foreach (var child in GetChildren())
+        {
+            child.Accept(visitor);
+        }
+
+        visitor.Visit(this);
+    }
+
+    public void FindTypeInScope(AST scope)
+    {
+        var children = GetChildren();
+
+        if (children[1] is ParamsNode paramsNode)
+        {
+            kind = "functioncall";
+
+            var typePrefix = "";
+            foreach (var param in paramsNode.GetChildren())
+            {
+                if (param is EpsilonNode)
+                {
+                    continue;
+                }
+
+                typePrefix += typePrefix == "" ? $"{param.Type}" : $", {param.Type}";
+            }
+
+            AST? currentNode = scope;
+
+            while (currentNode != null)
+            {
+                if (currentNode.SymbolTable != null)
+                {
+                    var relevantEntries = currentNode.SymbolTable.GetEntriesWithName(children[0].Label);
+                    relevantEntries = [.. relevantEntries.Where(e => e.Kind.Equals("function") || e.Kind.Equals("method") || e.Kind.Equals("constructor"))];
+                    var mainEntry = relevantEntries.FirstOrDefault(e => e.TypePrefix().Equals(typePrefix));
+
+                    if (mainEntry != default(Entry))
+                    {
+                        type = mainEntry.Type[(mainEntry.Type.IndexOf(':') + 1)..];
+                        return;
+                    }
+                }
+
+                if (currentNode is ImplDefNode)
+                {
+                    currentNode = currentNode.SymbolTable?.GetEntry(currentNode.GetChildren()[0].Label, "class", "")?.Link?.ASTNode;
+                }
+                else
+                {
+                    currentNode = currentNode.Parent;
+                }
+            }
+        }
+
+        else
+        {
+            var indices = 0;
+
+            if (children[1] is IndiceNode indice)
+            {
+                foreach (var expression in indice.GetChildren())
+                {
+                    if (expression is EpsilonNode)
+                    {
+                        continue;
+                    }
+
+                    indices++;
+                }
+            }
+
+            AST? currentNode = scope;
+
+            while (currentNode != null)
+            {
+                if (currentNode.SymbolTable != null)
+                {
+                    var relevantEntries = currentNode.SymbolTable.GetEntriesWithName(children[0].Label);
+                    relevantEntries = [.. relevantEntries.Where(e => e.Kind.Equals("localvar") || e.Kind.Equals("parameter") || e.Kind.Equals("attribute"))];
+                    var mainEntry = relevantEntries.FirstOrDefault(e => indices <= e.Type.Count(c => c == '['));
+
+                    if (mainEntry != default(Entry))
+                    {
+                        var mainEntryIndices = mainEntry.Type.Count(c => c == '[');
+                        var thisVarIndices = mainEntryIndices - indices;
+                        var newType = mainEntryIndices == 0 ? mainEntry.Type : mainEntry.Type[..mainEntry.Type.IndexOf('[')];
+
+                        for (var i = 0; i < thisVarIndices; i++)
+                        {
+                            newType += "[]";
+                        }
+
+                        type = newType;
+                        kind = mainEntry.Kind;
+                        return;
+                    }
+                }
+
+                if (currentNode is ImplDefNode)
+                {
+                    currentNode = currentNode.SymbolTable?.GetEntry(currentNode.GetChildren()[0].Label, "class", "")?.Link?.ASTNode;
+                }
+                else
+                {
+                    currentNode = currentNode.Parent;
+                }
+            }
+        }
+    }
+}
+
+public class DotNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
+{
+    public DotNode() : this("dot", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -778,9 +904,9 @@ public class VarNode(string label) : AST(label)
     }
 }
 
-public class DotNode(string label) : AST(label)
+public class FParamNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public DotNode() : this("dot") { }
+    public FParamNode() : this("fparam", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -793,9 +919,9 @@ public class DotNode(string label) : AST(label)
     }
 }
 
-public class FParamNode(string label) : AST(label)
+public class AssignNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public FParamNode() : this("fparam") { }
+    public AssignNode() : this("assign", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {
@@ -808,24 +934,9 @@ public class FParamNode(string label) : AST(label)
     }
 }
 
-public class AssignNode(string label) : AST(label)
+public class EmptyArraySizeNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
-    public AssignNode() : this("assign") { }
-
-    public override void Accept(IVisitor visitor)
-    {
-        foreach (var child in GetChildren())
-        {
-            child.Accept(visitor);
-        }
-
-        visitor.Visit(this);
-    }
-}
-
-public class EmptyArraySizeNode(string label) : AST(label)
-{
-    public EmptyArraySizeNode() : this("emptyarraysize") { }
+    public EmptyArraySizeNode() : this("emptyarraysize", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
     {

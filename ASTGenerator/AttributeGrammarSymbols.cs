@@ -2,10 +2,10 @@
 
 public class AttributeGrammarSymbols
 {
-    private static Dictionary<string, Action<Stack<AST>, string>> semanticActions = [];
+    private static Dictionary<string, Action<Stack<AST>, string, (int, int)>> semanticActions = [];
     private static Dictionary<string, Type> nameToType = [];
 
-    public static Dictionary<string, Action<Stack<AST>, string>> SemanticActions => semanticActions;
+    public static Dictionary<string, Action<Stack<AST>, string, (int, int)>> SemanticActions => semanticActions;
     public static Dictionary<string, Type> NameToType => nameToType;
 
     /// <summary>
@@ -15,32 +15,32 @@ public class AttributeGrammarSymbols
     {
         semanticActions = new()
         {
-            { "PUSHEPSILON", (s, n) => { s.Push(AST.MakeNode<EpsilonNode>()); } },
+            { "PUSHEPSILON", (s, n, p) => { s.Push(AST.MakeNode<EpsilonNode>(n, p)); } },
 
-            { "PUSHID", (s, n) => { s.Push(AST.MakeNode<IdNode>(n)); } },
+            { "PUSHID", (s, n, p) => { s.Push(AST.MakeNode<IdNode>(n, p)); } },
 
-            { "PUSHVISIBILITY", (s, n) => { s.Push(AST.MakeNode<VisibilityNode>(n)); } },
+            { "PUSHVISIBILITY", (s, n, p) => { s.Push(AST.MakeNode<VisibilityNode>(n, p)); } },
 
-            { "PUSHTYPE", (s, n) => { s.Push(AST.MakeNode<TypeNode>(n)); } },
+            { "PUSHTYPE", (s, n, p) => { s.Push(AST.MakeNode < TypeNode >(n, p)); } },
 
-            { "PUSHRETURNTYPE", (s, n) => { s.Push(AST.MakeNode<ReturnTypeNode>(n)); } },
+            { "PUSHRETURNTYPE", (s, n, p) => { s.Push(AST.MakeNode < ReturnTypeNode >(n, p)); } },
 
-            { "PUSHINTLIT", (s, n) => { s.Push(AST.MakeNode<IntLitNode>(n)); } },
+            { "PUSHINTLIT", (s, n, p) => { s.Push(AST.MakeNode < IntLitNode >(n, p)); } },
 
-            { "PUSHFLOATLIT", (s, n) => { s.Push(AST.MakeNode<FloatLitNode>(n)); } },
+            { "PUSHFLOATLIT", (s, n, p) => { s.Push(AST.MakeNode < FloatLitNode >(n, p)); } },
 
-            { "PUSHRELOP", (s, n) => { s.Push(AST.MakeNode<RelOpNode>(n)); } },
+            { "PUSHRELOP", (s, n, p) => { s.Push(AST.MakeNode < RelOpNode >(n, p)); } },
 
-            { "PUSHADDOP", (s, n) => { s.Push(AST.MakeNode<AddOpNode>(n)); } },
+            { "PUSHADDOP", (s, n, p) => { s.Push(AST.MakeNode < AddOpNode >(n, p)); } },
 
-            { "PUSHMULTOP", (s, n) => { s.Push(AST.MakeNode<MultOpNode>(n)); } },
+            { "PUSHMULTOP", (s, n, p) => { s.Push(AST.MakeNode < MultOpNode >(n, p)); } },
 
-            { "PUSHSIGN", (s, n) => { s.Push(AST.MakeNode<SignNode>(n)); } },
+            { "PUSHSIGN", (s, n, p) => { s.Push(AST.MakeNode < SignNode >(n, p)); } },
 
-            { "PUSHIDORSELF", (s, n) => { s.Push(AST.MakeNode<IdOrSelfNode>(n)); } },
+            { "PUSHIDORSELF", (s, n, p) => { s.Push(AST.MakeNode < IdOrSelfNode >(n, p)); } },
 
             { 
-                "POPUNARY", (s, n) => 
+                "POPUNARY", (s, n, p) => 
                 {
                     var child = s.Pop();
                     s.Push(AST.MakeFamily(s.Pop(), [child]));
@@ -48,7 +48,7 @@ public class AttributeGrammarSymbols
             },
 
             { 
-                "POPBINARY", (s, n) => 
+                "POPBINARY", (s, n, p) => 
                 {
                     var child2 = s.Pop();
                     var parent = s.Pop();
@@ -59,14 +59,14 @@ public class AttributeGrammarSymbols
             },
 
             { 
-                "POP", (s, n) => 
+                "POP", (s, n, p) => 
                 {
                     s.Push(AST.MakeFamily(n, [s.Pop()])); 
                 } 
             },
 
             {
-                "POP2", (s, n) =>
+                "POP2", (s, n, p) =>
                 {
                     List<AST> children = [s.Pop(), s.Pop()];
                     children.Reverse();
@@ -75,7 +75,7 @@ public class AttributeGrammarSymbols
             },
 
             {
-                "POP3", (s, n) =>
+                "POP3", (s, n, p) =>
                 {
                     List<AST> children = [s.Pop(), s.Pop(), s.Pop()];
                     children.Reverse();
@@ -84,7 +84,7 @@ public class AttributeGrammarSymbols
             },
 
             {
-                "POPUNTILEPSILON", (s, n) =>
+                "POPUNTILEPSILON", (s, n, p) =>
                 {
                     var children = new List<AST>();
                     AST? child = null;

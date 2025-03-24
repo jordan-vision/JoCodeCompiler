@@ -85,11 +85,11 @@ class ImplementationAndInheritanceVisitor : IVisitor
 
                 if (!node.SymbolTable.DoesEntryExist(name, "class", ""))
                 {
-                    SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {name}.");
+                    SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {name}.", child.Position);
                     continue;
                 }
 
-                var classTable = node.SymbolTable.GetEntry(name, "class", "").Link;
+                var classTable = node.SymbolTable.GetEntry(name, "class", "")?.Link;
 
                 if (classTable == null)
                 {
@@ -102,7 +102,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
                 {
                     if (!classTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
                     {
-                        SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {entry.Kind} {classTable.Name}::{entry.Name} -> {entry.Type}.");
+                        SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {entry.Kind} {classTable.Name}::{entry.Name} -> {entry.Type}.", child.Position);
                         continue;
                     }
 
@@ -150,7 +150,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
                 continue;
             }
 
-            var parentClassTable = globalTable.GetEntry(parent.Label, "class", "").Link;
+            var parentClassTable = globalTable.GetEntry(parent.Label, "class", "")?.Link;
 
             if (parentClassTable == null)
             {
@@ -161,11 +161,11 @@ class ImplementationAndInheritanceVisitor : IVisitor
             {
                 if (parentClassTable.DoesEntryExist(node.SymbolTable.Name, "inherited", ""))
                 {
-                    SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {parentClassTable.Name} -> {node.SymbolTable.Name}");
+                    SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {parentClassTable.Name} -> {node.SymbolTable.Name}", node.Position);
                 }
                 else if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
                 {
-                    SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type}");
+                    SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type}", node.Position);
                 } 
                 else
                 {

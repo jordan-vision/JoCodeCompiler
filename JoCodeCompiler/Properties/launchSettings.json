@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JoCodeCompiler": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    }
+  }
+}

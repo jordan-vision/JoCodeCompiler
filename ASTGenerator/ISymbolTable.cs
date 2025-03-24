@@ -14,9 +14,11 @@ public interface ISymbolTable
 
     List<Entry> GetEntriesOfKind(string kind);
 
-    Entry GetEntry(string name, string kind, string type);
+    Entry? GetEntry(string name, string kind, string type);
 
-    Entry GetEntryWithLink(ISymbolTable link);
+    Entry? GetEntryWithLink(ISymbolTable link);
+
+    List<Entry> GetEntriesWithName(string name);
 
     void CreateLink(string name, string kind, string type, ISymbolTable link);
 
@@ -37,4 +39,30 @@ public class Entry(string name, string kind, string type, ISymbolTable? link)
     public string Type => type;
 
     public ISymbolTable? Link { get { return link; } set { link = value; } }
+
+    public string TypePrefix()
+    {
+        var returnValue = "";
+
+        var prefix = type[1..(type.IndexOf(':') - 1)];
+        bool skipThisCharacter = false;
+
+        for (int i = 0; i < prefix.Length - 1; i++)
+        {
+            if (skipThisCharacter && prefix[i] == ']')
+            {
+                skipThisCharacter = false;
+            }
+
+            if (prefix[i] == '[' && prefix[i + 1] != ']')
+            {
+                skipThisCharacter = true;
+            }
+
+            returnValue += skipThisCharacter ? "" : prefix[i];
+        }
+
+        returnValue += prefix[^1];
+        return returnValue;
+    }
 }

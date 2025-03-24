@@ -18,7 +18,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     {
         if (DoesEntryExist(name, kind, type))
         {
-            SemanticAnalyzer.WriteSemanticError($"Multiple definitions of the {kind} {name}");
+            SemanticAnalyzer.WriteSemanticError($"Multiple definitions of the {kind} {name}.", astNode.Position);
             return;
         }
 
@@ -35,19 +35,31 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         return [.. entries.Where(e => e.Kind.Equals(kind))];
     }
 
-    public Entry GetEntry(string name, string kind, string type)
+    public Entry? GetEntry(string name, string kind, string type)
     {
-        return entries.First(e => e.Name.Equals(name) && e.Kind.Equals(kind) && e.Type.Equals(type));
+        var returnValue = entries.FirstOrDefault(e => e.Name.Equals(name) && e.Kind.Equals(kind) && e.Type.Equals(type));
+        return returnValue == default(Entry) ? null : returnValue;
     }
 
-    public Entry GetEntryWithLink(ISymbolTable link)
+    public Entry? GetEntryWithLink(ISymbolTable link)
     {
-        return entries.First(e => e.Link == link);
+        var returnValue = entries.FirstOrDefault(e => e.Link == link);
+        return returnValue == default(Entry) ? null : returnValue;
+    }
+
+    public List<Entry> GetEntriesWithName(string name)
+    {
+        return [.. entries.Where(e => e.Name == name)];
     }
 
     public void CreateLink(string name, string kind, string type, ISymbolTable link)
     {
-        GetEntry(name, kind, type).Link = link;
+        var entry = GetEntry(name, kind, type);
+
+        if (entry != null)
+        {
+            entry.Link = link;
+        }
     }
 
     public override string ToString()

@@ -1,5 +1,4 @@
-﻿
-using ASTGenerator;
+﻿using ASTGenerator;
 
 namespace SyntacticAnalyzer;
 
@@ -53,7 +52,7 @@ public class ParsingTable
     /// Derive token from current stack
     /// </summary>
     /// <param name="thisToken">Terminal symbol to derive</param>
-    public static void Derive(string thisToken, string lexeme)
+    public static void Derive(string thisToken, string lexeme, (int, int) position)
     {
         string topElement;
 
@@ -66,12 +65,12 @@ public class ParsingTable
                 if (topElement == thisToken)
                 {
                     stack.Pop();
-                    CheckSemanticAction(lexeme);
+                    CheckSemanticAction(lexeme, position);
                     return;
                 }
 
                 SkipError(thisToken.Equals(GrammarSymbols.END), thisToken);
-                CheckSemanticAction(lexeme);
+                CheckSemanticAction(lexeme, position);
                 return;
             }
 
@@ -83,7 +82,7 @@ public class ParsingTable
                     ), out var production) || production.Equals("POP"))
                 {
                     SkipError(thisToken.Equals(GrammarSymbols.END) || production != null && production.Equals("POP"), thisToken);
-                    CheckSemanticAction(lexeme);
+                    CheckSemanticAction(lexeme, position);
                     return;
                 }
 
@@ -123,7 +122,7 @@ public class ParsingTable
 
             }
 
-            CheckSemanticAction(lexeme);
+            CheckSemanticAction(lexeme, position);
 
         } while (!GrammarSymbols.TERMINALS.Contains(topElement));
     }
@@ -194,9 +193,9 @@ public class ParsingTable
         return stack.Peek();
     }
 
-    public static void CheckSemanticAction(string lexeme)
+    public static void CheckSemanticAction(string lexeme, (int, int) position)
     {
-        if (stack.Count == 0 || !SemanticStack.PerformSemanticAction(stack.Peek(), lexeme))
+        if (stack.Count == 0 || !SemanticStack.PerformSemanticAction(stack.Peek(), lexeme, position))
         {
             return;
         }

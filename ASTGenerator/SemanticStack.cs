@@ -10,18 +10,18 @@ public class SemanticStack
     /// <param name="symbol">Semantic action</param>
     /// <param name="lexeme">If this is a PUSH action, the resulting leaf node should save this lexeme</param>
     /// <returns>True if the semantic action was succesful, false otherwise</returns>
-    public static bool PerformSemanticAction(string symbol, string lexeme)
+    public static bool PerformSemanticAction(string symbol, string lexeme, (int, int) position)
     {
         if (AttributeGrammarSymbols.SemanticActions.TryGetValue(symbol, out var value))
         {
-            value(semanticStack, lexeme);
+            value(semanticStack, lexeme, position);
             return true;
         }
 
         if (symbol.StartsWith("POP"))
         {
             var (prefix, suffix) = SeparateSymbol(symbol);
-            AttributeGrammarSymbols.SemanticActions[prefix](semanticStack, suffix);
+            AttributeGrammarSymbols.SemanticActions[prefix](semanticStack, suffix, position);
             return true;
         }
 

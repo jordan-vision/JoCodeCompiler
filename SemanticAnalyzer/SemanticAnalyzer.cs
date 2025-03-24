@@ -36,16 +36,19 @@ public class SemanticAnalyzer
         SemanticStack.Traverse(new ImplementationAndInheritanceVisitor());
         SemanticStack.Traverse(new SemanticCheckVisitor());
 
-        Console.Write(SemanticStack.WriteSymbolTable());
+        symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
+
+        symbolTableWriter?.Close();
+        semanticErrorsWriter?.Close();
     }
 
-    public static void WriteSemanticError(string message)
+    public static void WriteSemanticError(string message, (int, int) position)
     {
-        semanticErrorsWriter?.WriteLine($"Semantic error. {message}");
+        semanticErrorsWriter?.WriteLine($"Semantic error. {message} line {position.Item1}, column {position.Item2}");
     }
 
-    public static void WriteWarning(string message)
+    public static void WriteWarning(string message, (int, int) position)
     {
-        semanticErrorsWriter?.WriteLine($"Warning. {message}");
+        semanticErrorsWriter?.WriteLine($"Warning. {message} line {position.Item1}, column {position.Item2}");
     }
 }
