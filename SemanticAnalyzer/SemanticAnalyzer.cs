@@ -1,4 +1,5 @@
 ﻿using ASTGenerator;
+using CodeGenerator;
 
 namespace SemanticAnalyzer;
 
@@ -35,6 +36,8 @@ public class SemanticAnalyzer
         SemanticStack.Traverse(new SymbolTableGeneratorVisitor());
         SemanticStack.Traverse(new ImplementationAndInheritanceVisitor());
         SemanticStack.Traverse(new SemanticCheckVisitor());
+
+        SemanticStack.Traverse(new MemoryManagerVisitor());
 
         symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
 

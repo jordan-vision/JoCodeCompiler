@@ -10,7 +10,7 @@ public interface ISymbolTable
 
     void AddEntry(string name, string kind, string type, ISymbolTable? link);
 
-    bool DoesEntryExist(string name, string kind, string type);
+    bool DoesEntryExist(string name, string kind);
 
     List<Entry> GetEntriesOfKind(string kind);
 
@@ -25,12 +25,17 @@ public interface ISymbolTable
     string ToString();
 
     string GetString(int indent);
+
+    void ComputeSize();
+
+    void GenerateEntry(string kind, string type);
 }
 
 public class Entry(string name, string kind, string type, ISymbolTable? link)
 {
     private string name = name, kind = kind, type = type;
     private ISymbolTable? link = link;
+    private int size;
 
     public string Name => name;
 
@@ -40,29 +45,42 @@ public class Entry(string name, string kind, string type, ISymbolTable? link)
 
     public ISymbolTable? Link { get { return link; } set { link = value; } }
 
-    public string TypePrefix()
-    {
-        var returnValue = "";
+    public int Size { get { return size; } set { size = value; } }
 
-        var prefix = type[1..(type.IndexOf(':') - 1)];
-        bool skipThisCharacter = false;
+    public (string, List<int>) GetReturnTypePrefixAndSuffix()
+    {
+        var returnString = "";
+        var returnInts = new List<int>();
+
+        var prefix = type.Contains(':') ? type[1..(type.IndexOf(':') - 1)] : type;
+        bool inIndex = false;
+        string currentIndiceString = "";
 
         for (int i = 0; i < prefix.Length - 1; i++)
         {
-            if (skipThisCharacter && prefix[i] == ']')
+            if (inIndex)
             {
-                skipThisCharacter = false;
+                if (prefix[i] == ']')
+                {
+                    inIndex = false;
+                    returnInts.Add(int.Parse(currentIndiceString));
+                    currentIndiceString = "";
+                } 
+                else if (prefix[i] >= '0' && prefix[i] <= '9')
+                {
+                    currentIndiceString += prefix[i];
+                }
             }
 
             if (prefix[i] == '[' && prefix[i + 1] != ']')
             {
-                skipThisCharacter = true;
+                inIndex = true;
             }
 
-            returnValue += skipThisCharacter ? "" : prefix[i];
+            returnString += inIndex ? "" : prefix[i];
         }
 
-        returnValue += prefix[^1];
-        return returnValue;
+        returnString += prefix[^1];
+        return (returnString, returnInts);
     }
 }

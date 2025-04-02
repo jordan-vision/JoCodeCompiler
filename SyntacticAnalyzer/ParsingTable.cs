@@ -190,7 +190,7 @@ public class ParsingTable
 
     public static string TopOfStack()
     {
-        return stack.Peek();
+        return stack.Count == 0 ? "" : stack.Peek();
     }
 
     public static void CheckSemanticAction(string lexeme, (int, int) position)

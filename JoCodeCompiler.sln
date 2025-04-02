@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASTGenerator", "ASTGenerato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticAnalyzer", "SemanticAnalyzer\SemanticAnalyzer.csproj", "{E3DB0FEF-CEB2-432D-A2FE-4FC15EB6B54C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerator", "CodeGenerator\CodeGenerator.csproj", "{27E7DC01-8D50-4FBB-A71F-A40A54F451F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{E3DB0FEF-CEB2-432D-A2FE-4FC15EB6B54C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3DB0FEF-CEB2-432D-A2FE-4FC15EB6B54C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3DB0FEF-CEB2-432D-A2FE-4FC15EB6B54C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27E7DC01-8D50-4FBB-A71F-A40A54F451F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27E7DC01-8D50-4FBB-A71F-A40A54F451F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27E7DC01-8D50-4FBB-A71F-A40A54F451F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27E7DC01-8D50-4FBB-A71F-A40A54F451F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

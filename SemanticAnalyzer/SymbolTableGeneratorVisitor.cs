@@ -95,6 +95,11 @@ public class SymbolTableGeneratorVisitor : IVisitor
                     continue;
                 }
 
+                if (node.SymbolTable.DoesEntryExist(child.SymbolTable.Name, "function"))
+                {
+                    SemanticAnalyzer.WriteWarning($"Multiple functions {child.SymbolTable.Name} declared.", funcHead.Position);
+                }
+
                 var kind = (child.SymbolTable.Name == "main") ? "main function" : "function";
                 node.SymbolTable.AddEntry(child.SymbolTable.Name, kind, ((FuncHeadNode)funcHead).GetTypeString(), child.SymbolTable);
             }
@@ -159,7 +164,13 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
             if (decl is FuncHeadNode funcHead)
             {
-                node.SymbolTable.AddEntry(decl.GetChildren()[0].Label, "method", funcHead.GetTypeString(), null);
+                var name = decl.GetChildren()[0].Label;
+                if (node.SymbolTable.DoesEntryExist(name, "method"))
+                {
+                    SemanticAnalyzer.WriteWarning($"Multiple class methods {node.SymbolTable.Name}::{name} declared.", funcHead.Position);
+                }
+
+                node.SymbolTable.AddEntry(name, "method", funcHead.GetTypeString(), null);
             }
 
             if (decl is CParamsNode cParams)

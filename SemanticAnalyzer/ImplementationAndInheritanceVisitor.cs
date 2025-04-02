@@ -83,7 +83,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
 
                 var name = child.GetChildren()[0].Label;
 
-                if (!node.SymbolTable.DoesEntryExist(name, "class", ""))
+                if (!node.SymbolTable.DoesEntryExist(name, "class"))
                 {
                     SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {name}.", child.Position);
                     continue;
@@ -100,7 +100,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
 
                 foreach (var entry in child.SymbolTable.GetEntriesOfKind("method").Union(child.SymbolTable.GetEntriesOfKind("constructor")))
                 {
-                    if (!classTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
+                    if (!classTable.DoesEntryExist(entry.Name, entry.Kind))
                     {
                         SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {entry.Kind} {classTable.Name}::{entry.Name} -> {entry.Type}.", child.Position);
                         continue;
@@ -157,7 +157,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
                 continue;
             }
 
-            if (parentClassTable.DoesEntryExist(node.SymbolTable.Name, "inherited", ""))
+            if (parentClassTable.DoesEntryExist(node.SymbolTable.Name, "inherited"))
             {
                 SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {parentClassTable.Name} -> {node.SymbolTable.Name}", node.Position);
                 continue;
@@ -165,7 +165,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
 
             foreach (var entry in parentClassTable.Entries)
             {
-                if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind, entry.Type))
+                if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind))
                 {
                     SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type}", node.Position);
                 } 

@@ -388,7 +388,7 @@ class SemanticCheckVisitor : IVisitor
             return;
         }
 
-        if (!rootTable.DoesEntryExist(operands[0].Type, "class", ""))
+        if (!rootTable.DoesEntryExist(operands[0].Type, "class"))
         {
             SemanticAnalyzer.WriteSemanticError($"Identifier {operands[0].GetChildren()[0].Label} does not represent a class object.", operands[0].Position);
         }

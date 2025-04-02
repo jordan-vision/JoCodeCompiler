@@ -144,8 +144,11 @@ public class Parser
             message += $"Unexpected symbol \"{token?.Lexeme}\" on line {token?.Location.Item1}, column {token?.Location.Item2}. ";
         }
 
-        var details = GrammarSymbols.TERMINALS.Contains(topOfStack) ? $"Expected a token of type {topOfStack}" : $"{GrammarSymbols.nonTerminalToErrorDetails[topOfStack]}";
-        message += details;
+        if (topOfStack != "")
+        {
+            var details = GrammarSymbols.TERMINALS.Contains(topOfStack) ? $"Expected a token of type {topOfStack}" : $"{GrammarSymbols.nonTerminalToErrorDetails[topOfStack]}";
+            message += details;
+        }
 
         syntaxErrorWriter?.WriteLine(message);
         syntaxErrorStream?.Flush();

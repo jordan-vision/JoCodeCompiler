@@ -188,6 +188,18 @@ public abstract class AST
         return node;
     }
 
+    public ISymbolTable? FindSmallestScope()
+    {
+        AST? node = this;
+        
+        while (node != null && node.SymbolTable == null)
+        {
+            node = node.Parent;
+        }
+
+        return node?.SymbolTable;
+    }
+
     public abstract void Accept(IVisitor visitor);
 }
 
@@ -812,7 +824,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                 {
                     var relevantEntries = currentNode.SymbolTable.GetEntriesWithName(children[0].Label);
                     relevantEntries = [.. relevantEntries.Where(e => e.Kind.Equals("function") || e.Kind.Equals("method") || e.Kind.Equals("constructor"))];
-                    var mainEntry = relevantEntries.FirstOrDefault(e => e.TypePrefix().Equals(typePrefix));
+                    var mainEntry = relevantEntries.FirstOrDefault(e => e.GetReturnTypePrefixAndSuffix().Item1.Equals(typePrefix));
 
                     if (mainEntry != default(Entry))
                     {

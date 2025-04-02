@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ASTGenerator\ASTGenerator.csproj" />
-    <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
   </ItemGroup>
 
 </Project>
