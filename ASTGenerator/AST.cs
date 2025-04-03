@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+﻿using JoCodeTypes;
 
 namespace ASTGenerator;
 
@@ -9,7 +9,8 @@ public abstract class AST
     private (int, int) positionInFile;
 
     protected AST? leftmostChild = null;
-    protected string label, type = "", kind = "";
+    protected string label, kind = "";
+    protected IJoCodeType? type = null;
     protected ISymbolTable? symbolTable = null;
 
     public AST? Parent => parent;
@@ -18,7 +19,7 @@ public abstract class AST
 
     public string Label => label;
 
-    public string Type { get { return type; } set { type = value; } }
+    public IJoCodeType? Type { get { return type; } set { type = value; } }
 
     public string Kind { get { return kind; } set { kind = value; } }
 
@@ -497,26 +498,6 @@ public class FuncHeadNode(string label, (int, int) positionInFile) : AST(label, 
 
         visitor.Visit(this);
     }
-
-    public string GetTypeString()
-    {
-        var parameters = GetChildren()[1];
-        string returnValue = "";
-
-        foreach (var parameter in parameters.GetChildren())
-        {
-            if (parameter is not FParamNode)
-            {
-                continue;
-            }
-
-            var parameterDefinition = parameter.GetChildren();
-            returnValue += returnValue == "" ? parameterDefinition[1] : $", {parameterDefinition[1]}";
-            returnValue += ((ArraySizesNode)parameterDefinition[2]).GetSizesString();
-        }
-
-        return $"({returnValue}):{GetChildren()[2].Label}";
-    }
 }
 
 public class CParamsNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
@@ -531,25 +512,6 @@ public class CParamsNode(string label, (int, int) positionInFile) : AST(label, p
         }
 
         visitor.Visit(this);
-    }
-
-    public string GetTypeString()
-    {
-        var returnValue = "";
-
-        foreach (var parameter in GetChildren())
-        {
-            if (parameter is not FParamNode)
-            {
-                continue;
-            }
-
-            var parameterDefinition = parameter.GetChildren();
-            returnValue += returnValue == "" ? parameterDefinition[1] : $", {parameterDefinition[1]}";
-            returnValue += ((ArraySizesNode)parameterDefinition[2]).GetSizesString();
-        }
-
-        return $"({returnValue})";
     }
 }
 
@@ -580,26 +542,6 @@ public class ArraySizesNode(string label, (int, int) positionInFile) : AST(label
         }
 
         visitor.Visit(this);
-    }
-
-    public string GetSizesString()
-    {
-        var returnValue = "";
-
-        foreach (var arraySize in GetChildren())
-        {
-            if (arraySize is EmptyArraySizeNode)
-            {
-                returnValue += "[]";
-            }
-
-            if (arraySize is IntLitNode)
-            {
-                returnValue += $"[{arraySize.Label}]";
-            }
-        }
-
-        return returnValue;
     }
 }
 
@@ -823,19 +765,19 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                 if (currentNode.SymbolTable != null)
                 {
                     var relevantEntries = currentNode.SymbolTable.GetEntriesWithName(children[0].Label);
-                    relevantEntries = [.. relevantEntries.Where(e => e.Kind.Equals("function") || e.Kind.Equals("method") || e.Kind.Equals("constructor"))];
-                    var mainEntry = relevantEntries.FirstOrDefault(e => e.GetReturnTypePrefixAndSuffix().Item1.Equals(typePrefix));
+                    relevantEntries = [.. relevantEntries.Where(e => e.Kind == "function" || e.Kind == "method" || e.Kind == "constructor")];
+                    var mainEntry = relevantEntries.FirstOrDefault(e => e.Type is FunctionType f && f.ParameterTypes() == typePrefix);
 
                     if (mainEntry != default(Entry))
                     {
-                        type = mainEntry.Type[(mainEntry.Type.IndexOf(':') + 1)..];
+                        type = ((FunctionType)mainEntry.Type).ReturnType;
                         return;
                     }
                 }
 
                 if (currentNode is ImplDefNode)
                 {
-                    currentNode = currentNode.SymbolTable?.GetEntry(currentNode.GetChildren()[0].Label, "class", "")?.Link?.ASTNode;
+                    currentNode = currentNode.SymbolTable?.GetEntry(currentNode.GetChildren()[0].Label, "class", null)?.Link?.ASTNode;
                 }
                 else
                 {
@@ -868,21 +810,12 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                 if (currentNode.SymbolTable != null)
                 {
                     var relevantEntries = currentNode.SymbolTable.GetEntriesWithName(children[0].Label);
-                    relevantEntries = [.. relevantEntries.Where(e => e.Kind.Equals("localvar") || e.Kind.Equals("parameter") || e.Kind.Equals("attribute"))];
-                    var mainEntry = relevantEntries.FirstOrDefault(e => indices <= e.Type.Count(c => c == '['));
+                    relevantEntries = [.. relevantEntries.Where(e => e.Kind == "localvar" || e.Kind == "parameter" || e.Kind == "attribute")];
+                    var mainEntry = relevantEntries.FirstOrDefault();
 
                     if (mainEntry != default(Entry))
                     {
-                        var mainEntryIndices = mainEntry.Type.Count(c => c == '[');
-                        var thisVarIndices = mainEntryIndices - indices;
-                        var newType = mainEntryIndices == 0 ? mainEntry.Type : mainEntry.Type[..mainEntry.Type.IndexOf('[')];
-
-                        for (var i = 0; i < thisVarIndices; i++)
-                        {
-                            newType += "[]";
-                        }
-
-                        type = newType;
+                        // TODO
                         kind = mainEntry.Kind;
                         return;
                     }
@@ -890,7 +823,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
 
                 if (currentNode is ImplDefNode)
                 {
-                    currentNode = currentNode.SymbolTable?.GetEntry(currentNode.GetChildren()[0].Label, "class", "")?.Link?.ASTNode;
+                    currentNode = currentNode.SymbolTable?.GetEntry(currentNode.GetChildren()[0].Label, "class", null)?.Link?.ASTNode;
                 }
                 else
                 {

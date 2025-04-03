@@ -1,4 +1,5 @@
 ﻿using ASTGenerator;
+using JoCodeTypes;
 
 namespace SemanticAnalyzer;
 
@@ -17,7 +18,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
     public int Size => size;
 
-    public void AddEntry(string name, string kind, string type, ISymbolTable? link)
+    public void AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link)
     {
         if (IsEntryDuplicate(name, kind, type))
         {
@@ -33,30 +34,29 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
             entries.Add(newEntry);
         }
 
-        var baseSize = 4;
-        var (typePrefix, typeSuffix) = newEntry.GetReturnTypePrefixAndSuffix();
+        //var baseSize = 4;
 
         entries.Add(newEntry);
     }
 
     public bool DoesEntryExist(string name, string kind)
     {
-        return entries.Any(e => e.Name.Equals(name) && e.Kind.Equals(kind));
+        return entries.Any(e => e.Name == name && e.Kind == kind);
     }
 
-    private bool IsEntryDuplicate(string name, string kind, string type)
+    private bool IsEntryDuplicate(string name, string kind, IJoCodeType? type)
     {
-        return entries.Any(e => e.Name.Equals(name) && e.Kind.Equals(kind) && e.Type.Equals(type));
+        return entries.Any(e => e.Name == name && e.Kind == kind && e.Type == type);
     }
 
     public List<Entry> GetEntriesOfKind(string kind)
     {
-        return [.. entries.Where(e => e.Kind.Equals(kind))];
+        return [.. entries.Where(e => e.Kind == kind)];
     }
 
-    public Entry? GetEntry(string name, string kind, string type)
+    public Entry? GetEntry(string name, string kind, IJoCodeType? type)
     {
-        var returnValue = entries.FirstOrDefault(e => e.Name.Equals(name) && e.Kind.Equals(kind) && e.Type.Equals(type));
+        var returnValue = entries.FirstOrDefault(e => e.Name == name && e.Kind == kind && e.Type == type);
         return returnValue == default(Entry) ? null : returnValue;
     }
 
@@ -71,7 +71,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         return [.. entries.Where(e => e.Name == name)];
     }
 
-    public void CreateLink(string name, string kind, string type, ISymbolTable link)
+    public void CreateLink(string name, string kind, IJoCodeType? type, ISymbolTable link)
     {
         var entry = GetEntry(name, kind, type);
 
@@ -102,7 +102,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
         foreach(var entry in entries)
         {
-            returnValue += prefix + $"| {entry.Name}\t{entry.Kind}\t{entry.Type}\t{entry.Size}";
+            returnValue += prefix + $"| {entry.Name}\t{entry.Kind}\t{entry.Type.Label}\t{entry.Type.Size}";
 
             if (entry.Link == null)
             {
@@ -123,13 +123,13 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     {
         size = 0;
 
-        foreach (var entry in entries.Where(e => !e.Type.Equals("inherited")))
+        foreach (var entry in entries.Where(e => e.Type.Label != "inherited"))
         {
-            size += entry.Size;
+            size += entry.Type.Size;
         }
     }
 
-    public void GenerateEntry(string kind, string type)
+    public void GenerateEntry(string kind, IJoCodeType? type)
     {
         AddEntry($"t{nextGeneratedEntryIndex++}", kind, type, null);
     }

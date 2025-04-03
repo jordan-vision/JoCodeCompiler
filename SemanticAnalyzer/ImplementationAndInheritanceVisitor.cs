@@ -89,14 +89,14 @@ class ImplementationAndInheritanceVisitor : IVisitor
                     continue;
                 }
 
-                var classTable = node.SymbolTable.GetEntry(name, "class", "")?.Link;
+                var classTable = node.SymbolTable.GetEntry(name, "class", null)?.Link;
 
                 if (classTable == null)
                 {
                     continue;
                 }
 
-                child.SymbolTable.AddEntry(classTable.Name, "class", "", classTable);
+                child.SymbolTable.AddEntry(classTable.Name, "class", null, classTable);
 
                 foreach (var entry in child.SymbolTable.GetEntriesOfKind("method").Union(child.SymbolTable.GetEntriesOfKind("constructor")))
                 {
@@ -150,7 +150,7 @@ class ImplementationAndInheritanceVisitor : IVisitor
                 continue;
             }
 
-            var parentClassTable = globalTable.GetEntry(parent.Label, "class", "")?.Link;
+            var parentClassTable = globalTable.GetEntry(parent.Label, "class", null)?.Link;
 
             if (parentClassTable == null)
             {

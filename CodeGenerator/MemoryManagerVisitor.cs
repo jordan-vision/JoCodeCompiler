@@ -1,4 +1,5 @@
 ﻿using ASTGenerator;
+using JoCodeTypes;
 
 namespace CodeGenerator;
 
@@ -32,7 +33,7 @@ public class MemoryManagerVisitor : IVisitor
     public void Visit(IntLitNode node)
     {
         var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("intlit", "int");
+        scopeSymbolTable?.GenerateEntry("intlit", BaseType.Int);
     }
 
     public void Visit(FloatLitNode node)

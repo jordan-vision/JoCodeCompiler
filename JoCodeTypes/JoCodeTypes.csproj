@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ASTGenerator\ASTGenerator.csproj" />
-    <ProjectReference Include="..\JoCodeTypes\JoCodeTypes.csproj" />
-  </ItemGroup>
-
 </Project>
