@@ -2,6 +2,7 @@
 using Lex = LexicalAnalyzer.LexicalAnalyzer;
 using ASTGen = ASTGenerator.ASTGenerator;
 using Sem = SemanticAnalyzer.SemanticAnalyzer;
+using Code = CodeGenerator.CodeGenerator;
 
 namespace SyntacticAnalyzer;
 
@@ -26,6 +27,7 @@ public class Parser
         Lex.OpenSourceFile(filename);
         ASTGen.OpenSourceFile(filename);
         Sem.OpenSourceFile(filename);
+        Code.OpenSourceFile(filename);
 
         nextTokenFlag = false;
         isProgramSyntacticallyCorrect = true;

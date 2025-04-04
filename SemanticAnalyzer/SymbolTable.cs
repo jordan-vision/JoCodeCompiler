@@ -8,7 +8,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     private string name = name;
     private List<Entry> entries = [];
     private AST astNode = astNode;
-    private int size = 0;
+    private int size = 0, nextVariable = 1;
 
     public string Name { get { return name; } set { name = value; } }
 
@@ -27,15 +27,6 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         }
 
         var newEntry = new Entry(name, kind, type, link);
-
-        
-        if (kind == "inherited")
-        {
-            entries.Add(newEntry);
-        }
-
-        //var baseSize = 4;
-
         entries.Add(newEntry);
     }
 
@@ -105,9 +96,9 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         {
             returnValue += prefix + $"| {entry.Name}\t{entry.Kind}";
 
-            if (entry.Type != null)
+            if (entry.Type != null && entry.Type.Size != 0)
             {
-                returnValue += $"\t{entry.Type.Label}\t{entry.Type.Size}";
+                returnValue += $"\t{entry.Type.Label}\t{entry.Type.Size}\t{entry.LocalOffset}";
             }
 
             if (entry.Link == null)
@@ -125,18 +116,38 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         return returnValue;
     }
 
-    public void ComputeEntrySizesAndOffsets()
+    public void ComputeSizeAndOffsets()
     {
         size = 0;
+        var totalOffset = 0;
 
         foreach (var entry in entries.Where(e => e.Kind != "inherited" && e.Type != null))
         {
-            if (entry.Kind == "class" && entry.Link != null && entry.Link.Size == 0)
+            if (entry.Link != null && entry.Link.Size == 0)
             {
-                entry.Link.ComputeEntrySizesAndOffsets();
+                entry.Link.ComputeSizeAndOffsets();
             }
 
+            entry.LocalOffset = totalOffset;
+
+            totalOffset -= entry.Type!.Size;
             size += entry.Type!.Size;
         }
+    }
+
+    public void AddEntryFirst(string name, string kind, IJoCodeType? type, ISymbolTable? link)
+    {
+        if (IsEntryDuplicate(name, kind, type))
+        {
+            SemanticAnalyzer.WriteSemanticError($"Multiple definitions of the {kind} {name}.", astNode.Position);
+            return;
+        }
+
+        entries.Insert(0, new(name, kind, type, link));
+    }
+
+    public void GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link)
+    {
+        AddEntry($"t{nextVariable++}", kind, type, link);
     }
 }

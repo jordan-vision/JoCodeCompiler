@@ -1,9 +1,8 @@
 ﻿using ASTGenerator;
-using JoCodeTypes;
 
 namespace CodeGenerator;
 
-public class MemoryManagerVisitor : IVisitor
+class CodeGeneratorVisitor : IVisitor
 {
     public void Visit(EpsilonNode node)
     {
@@ -32,38 +31,32 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(IntLitNode node)
     {
-        var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("intlit", BaseType.Int, null);
+        return;
     }
 
     public void Visit(FloatLitNode node)
     {
-        var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("floatlit", BaseType.Float, null);
+        return;
     }
 
     public void Visit(RelOpNode node)
     {
-        var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("bool", BaseType.Bool, null);
+        return;
     }
 
     public void Visit(AddOpNode node)
     {
-        var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("tempvar", node.GetChildren()[0].Type, null);
+        return;
     }
 
     public void Visit(MultOpNode node)
     {
-        var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("tempvar", node.GetChildren()[0].Type, null);
+        return;
     }
 
     public void Visit(SignNode node)
     {
-        var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("tempvar", node.GetChildren()[0].Type, null);
+        return;
     }
 
     public void Visit(IdOrSelfNode node)
@@ -73,7 +66,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(ProgramNode node)
     {
-        node.SymbolTable?.ComputeSizeAndOffsets();
+        return;
     }
 
     public void Visit(ParentsNode node)
@@ -93,7 +86,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(ClassDeclNode node)
     {
-        node.SymbolTable?.ComputeSizeAndOffsets();
+        return;
     }
 
     public void Visit(FuncDefsNode node)
@@ -108,20 +101,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(FuncDefNode node)
     {
-        if (node.SymbolTable == null)
-        {
-            return;
-        }
-
-        var head = node.GetChildren()[0];
-
-        if (head.GetChildren()[0].Label != "main")
-        {
-            node.SymbolTable.AddEntryFirst("jump", "jumpadress", BaseType.Int, null);
-            node.SymbolTable.AddEntryFirst("return", "returnvalue", head.GetChildren()[2].Type, null);
-        }
-
-        node.SymbolTable.ComputeSizeAndOffsets();
+        return;
     }
 
     public void Visit(FParamsNode node)
@@ -151,6 +131,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(VarDeclNode node)
     {
+        // Check if vardecl a class
         return;
     }
 

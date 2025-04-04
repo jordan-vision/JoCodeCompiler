@@ -32,7 +32,6 @@ public class SemanticAnalyzer
         semanticErrorsWriter = new(semanticErrorsStream);
 
         isProgramValid = true;
-        TagManager.Reset();
     }
 
     public static void TraverseAST()

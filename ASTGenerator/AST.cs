@@ -12,6 +12,7 @@ public abstract class AST
     protected string label, kind = "";
     protected IJoCodeType? type = null;
     protected ISymbolTable? symbolTable = null;
+    protected Entry? symbolTableEntry = null;
 
     public AST? Parent => parent;
 
@@ -24,6 +25,8 @@ public abstract class AST
     public string Kind { get { return kind; } set { kind = value; } }
 
     public ISymbolTable? SymbolTable { get { return symbolTable; } set { symbolTable = value; } }
+
+    public Entry? SymbolTableEntry { get { return symbolTableEntry; } set { symbolTableEntry = value; } }
 
     public AST(string label, (int, int) positionInFile)
     {
