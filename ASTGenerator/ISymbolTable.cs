@@ -29,8 +29,6 @@ public interface ISymbolTable
     string GetString(int indent);
 
     void ComputeSize();
-
-    void GenerateEntry(string kind, IJoCodeType? type);
 }
 
 public class Entry(string name, string kind, IJoCodeType? type, ISymbolTable? link)

@@ -8,7 +8,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     private string name = name;
     private List<Entry> entries = [];
     private AST astNode = astNode;
-    private int size, nextGeneratedEntryIndex = 1;
+    private int size;
 
     public string Name { get { return name; } set { name = value; } }
 
@@ -102,7 +102,12 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
         foreach(var entry in entries)
         {
-            returnValue += prefix + $"| {entry.Name}\t{entry.Kind}\t{entry.Type.Label}\t{entry.Type.Size}";
+            returnValue += prefix + $"| {entry.Name}\t{entry.Kind}";
+
+            if (entry.Type != null)
+            {
+                returnValue += $"\t{ entry.Type.Label}\t{ entry.Type.Size}";
+            }
 
             if (entry.Link == null)
             {
@@ -123,14 +128,9 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     {
         size = 0;
 
-        foreach (var entry in entries.Where(e => e.Type.Label != "inherited"))
+        foreach (var entry in entries.Where(e => e.Kind != "inherited" && e.Type != null))
         {
-            size += entry.Type.Size;
+            size += entry.Type!.Size;
         }
-    }
-
-    public void GenerateEntry(string kind, IJoCodeType? type)
-    {
-        AddEntry($"t{nextGeneratedEntryIndex++}", kind, type, null);
     }
 }

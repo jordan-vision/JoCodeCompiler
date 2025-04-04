@@ -57,11 +57,11 @@ class SemanticCheckVisitor : IVisitor
             return;
         }
 
-        if (operands[0].Type.Label != operands[1].Type.Label)
+        if (operands[0].Type!.Label != operands[1].Type!.Label)
         {
             SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on types {operands[0].Type} and {operands[1].Type}.", node.Position);
         }
-        else if (operands[0].Type.Label == "int" || operands[0].Type.Label == "float" || operands[0].Type.Label == "bool")
+        else if (operands[0].Type!.Label == "int" || operands[0].Type!.Label == "float" || operands[0].Type!.Label == "bool")
         {
             node.Type = operands[0].Type;
             node.Kind = "operator";
@@ -81,11 +81,11 @@ class SemanticCheckVisitor : IVisitor
             return;
         }
 
-        if (operands[0].Type.Label != operands[1].Type.Label)
+        if (operands[0].Type!.Label != operands[1].Type!.Label)
         {
             SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on types {operands[0].Type} and {operands[1].Type}.", node.Position);
         }
-        else if (operands[0].Type.Label == "int" || operands[0].Type.Label == "float" || operands[0].Type.Label == "bool")
+        else if (operands[0].Type!.Label == "int" || operands[0].Type!.Label == "float" || operands[0].Type!.Label == "bool")
         {
             node.Type = operands[0].Type;
             node.Kind = "operator";
@@ -141,7 +141,7 @@ class SemanticCheckVisitor : IVisitor
             return;
         }
 
-        node.Type = new BaseType(currentNode.SymbolTable.Name);
+        node.Type = BaseType.GetBaseType(currentNode.SymbolTable.Name);
         node.Kind = "class";
     }
 
@@ -263,10 +263,11 @@ class SemanticCheckVisitor : IVisitor
         }
 
         var funcEntry = parentNode.SymbolTable.GetEntryWithLink(currentNode.SymbolTable);
-        var funcReturnType = ((FunctionType)funcEntry.Type).ReturnType;
+        var funcType = (FunctionType?)(funcEntry?.Type);
+        var funcReturnType = funcType?.ReturnType;
         var thisReturnType = node.GetChildren()[0].Type;
 
-        if (funcReturnType == null)
+        if (funcReturnType == null || thisReturnType == null)
         {
             return;
         }
@@ -301,12 +302,16 @@ class SemanticCheckVisitor : IVisitor
     {
         var operand = node.GetChildren()[0];
 
+        if (operand.Type == null)
+        {
+            return;
+        }
         if (operand.Type.Label == "bool")
         {
             node.Type = operand.Type;
             node.Kind = operand.Kind;
         }
-        else if (operand.Type != null)
+        else
         {
             SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operand.Type}", node.Position);
         }
@@ -353,6 +358,11 @@ class SemanticCheckVisitor : IVisitor
         {
             foreach (var expression in paramsNode.GetChildren())
             {
+                if (expression.Type == null)
+                {
+                    continue;
+                }
+
                 if (expression is not EpsilonNode && expression.Type.Label != "int")
                 {
                     SemanticAnalyzer.WriteSemanticError("Indice may only be of type int.", expression.Position);
@@ -391,12 +401,12 @@ class SemanticCheckVisitor : IVisitor
             return;
         }
 
-        if (!rootTable.DoesEntryExist(operands[0].Type.Label, "class"))
+        if (!rootTable.DoesEntryExist(operands[0].Type!.Label, "class"))
         {
             SemanticAnalyzer.WriteSemanticError($"Identifier {operands[0].GetChildren()[0].Label} does not represent a class object.", operands[0].Position);
         }
 
-        var entry = rootTable.GetEntry(operands[0].Type.Label, "class", null);
+        var entry = rootTable.GetEntry(operands[0].Type!.Label, "class", null);
         var scope = entry?.Link?.ASTNode;
 
         if (scope == null)
@@ -404,14 +414,14 @@ class SemanticCheckVisitor : IVisitor
             return;
         }
 
-        VarNode varNode = operands[1] is VarNode ? (VarNode)operands[1] : (VarNode)operands[1].GetChildren()[0];
+        VarNode varNode = operands[1] is VarNode varNode1 ? varNode1 : (VarNode)operands[1].GetChildren()[0];
         var children = varNode.GetChildren();
 
         if (children[1] is IndiceNode paramsNode)
         {
             foreach (var expression in paramsNode.GetChildren())
             {
-                if (expression.Type.Label != "int")
+                if (expression.Type?.Label != "int")
                 {
                     SemanticAnalyzer.WriteSemanticError("Indice may only be of type int.", expression.Position);
                 }

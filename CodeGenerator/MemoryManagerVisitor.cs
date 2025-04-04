@@ -33,27 +33,31 @@ public class MemoryManagerVisitor : IVisitor
     public void Visit(IntLitNode node)
     {
         var scopeSymbolTable = node.FindSmallestScope();
-        scopeSymbolTable?.GenerateEntry("intlit", BaseType.Int);
+        scopeSymbolTable?.AddEntry(TagManager.NextVariable(), "intlit", BaseType.Int, null);
     }
 
     public void Visit(FloatLitNode node)
     {
-        return;
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.AddEntry(TagManager.NextVariable(), "floatlit", BaseType.Float, null);
     }
 
     public void Visit(RelOpNode node)
     {
-        return;
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.AddEntry(TagManager.NextVariable(), "bool", BaseType.Bool, null);
     }
 
     public void Visit(AddOpNode node)
     {
-        return;
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.AddEntry(TagManager.NextVariable(), "tempvar", node.GetChildren()[0].Type, null);
     }
 
     public void Visit(MultOpNode node)
     {
-        return;
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.AddEntry(TagManager.NextVariable(), "tempvar", node.GetChildren()[0].Type, null);
     }
 
     public void Visit(SignNode node)

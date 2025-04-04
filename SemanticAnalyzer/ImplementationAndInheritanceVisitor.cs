@@ -175,6 +175,56 @@ class ImplementationAndInheritanceVisitor : IVisitor
                 }
             }
         }
+
+        List<ISymbolTable> visited = [];
+        Stack<ISymbolTable> next = [];
+        next.Push(node.SymbolTable);
+        ISymbolTable? circularReference = null;
+
+        do
+        {
+            var visiting = next.Pop();
+            var toPush = visiting.GetEntriesOfKind("attribute").Where(e => 
+            {
+                var gloabalScope = node.GetRootNode().SymbolTable;
+
+                if (gloabalScope == null || e.Type == null)
+                {
+                    return false;
+                }
+
+                var entries = gloabalScope.GetEntriesWithName(e.Type.Label);
+                return entries.Count != 0;
+
+            }).Select(e => node.GetRootNode().SymbolTable?.GetEntriesWithName(e.Type!.Label)[0].Link);
+
+            if (toPush != null)
+            {
+                foreach (var table in toPush)
+                {
+                    if (table == null)
+                    {
+                        return;
+                    }
+
+                    if (table == node.SymbolTable)
+                    {
+                        circularReference = visiting;
+                        break;
+                    }
+
+                    next.Push(table);
+                }
+            }
+
+            visited.Add(visiting);
+
+        } while (next.Count != 0 && circularReference == null);
+
+        if (circularReference != null)
+        {
+            SemanticAnalyzer.WriteSemanticError($"Circular reference {node.SymbolTable.Name} -> {circularReference.Name} -> {node.SymbolTable.Name}", node.Position);
+        }
     }
 
     public void Visit(FuncDefsNode node)

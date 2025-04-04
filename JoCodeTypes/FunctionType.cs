@@ -8,7 +8,7 @@ public class FunctionType : IJoCodeType
     private List<IJoCodeType> parameterList;
     private IJoCodeType returnType;
 
-    public string Label => Label;
+    public string Label => label;
     
     public int Size => size;
 

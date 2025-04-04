@@ -7,6 +7,7 @@ public class SemanticAnalyzer
 {
     private static FileStream? symbolTableStream, semanticErrorsStream;
     private static StreamWriter? symbolTableWriter, semanticErrorsWriter;
+    private static bool isProgramValid = true;
 
     public static void OpenSourceFile(string filename)
     {
@@ -37,7 +38,10 @@ public class SemanticAnalyzer
         SemanticStack.Traverse(new ImplementationAndInheritanceVisitor());
         SemanticStack.Traverse(new SemanticCheckVisitor());
 
-        SemanticStack.Traverse(new MemoryManagerVisitor());
+        if (isProgramValid)
+        {
+            SemanticStack.Traverse(new MemoryManagerVisitor());
+        }
 
         symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
 
@@ -47,6 +51,7 @@ public class SemanticAnalyzer
 
     public static void WriteSemanticError(string message, (int, int) position)
     {
+        isProgramValid = false;
         semanticErrorsWriter?.WriteLine($"Semantic error. {message} line {position.Item1}, column {position.Item2}\n");
     }
 

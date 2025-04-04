@@ -22,12 +22,12 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
     public void Visit(TypeNode node)
     {
-        node.Type = node.Label == "float" ? BaseType.Float : new BaseType(node.Label);
+        node.Type = node.Label == "float" ? BaseType.Float : BaseType.GetBaseType(node.Label);
     }
 
     public void Visit(ReturnTypeNode node)
     {
-        node.Type = node.Label == "float" ? BaseType.Float : new BaseType(node.Label);
+        node.Type = node.Label == "float" ? BaseType.Float : BaseType.GetBaseType(node.Label);
     }
 
     public void Visit(IntLitNode node)
@@ -106,7 +106,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
                 var parameters = new List<IJoCodeType>();
                 foreach (var parameter in funcHead.GetChildren()[1].GetChildren())
                 {
-                    if (parameter is not FParamNode)
+                    if (parameter is not FParamNode || parameter.Type == null)
                     {
                         continue;
                     }
@@ -114,7 +114,11 @@ public class SymbolTableGeneratorVisitor : IVisitor
                     parameters.Add(parameter.Type);
                 }
 
-                node.SymbolTable.AddEntry(child.SymbolTable.Name, kind, new FunctionType(parameters, funcHead.GetChildren()[2].Type), child.SymbolTable);
+                var returnType = funcHead.GetChildren()[2].Type;
+                if (returnType != null)
+                {
+                    node.SymbolTable.AddEntry(child.SymbolTable.Name, kind, new FunctionType(parameters, returnType), child.SymbolTable);
+                }
             }
         }
 
@@ -174,6 +178,11 @@ public class SymbolTableGeneratorVisitor : IVisitor
                 var type = varDecl[1].Type;
                 var arraySizes = (ArraySizesNode)varDecl[2];
 
+                if (type == null)
+                {
+                    return;
+                }
+
                 foreach (var arraySize in arraySizes.GetChildren())
                 {
                     if (arraySize is EpsilonNode)
@@ -199,7 +208,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
                 var parameters = new List<IJoCodeType>();
                 foreach (var parameter in funcHead.GetChildren()[1].GetChildren())
                 {
-                    if (parameter is not FParamNode)
+                    if (parameter is not FParamNode || parameter.Type == null)
                     {
                         continue;
                     }
@@ -207,7 +216,12 @@ public class SymbolTableGeneratorVisitor : IVisitor
                     parameters.Add(parameter.Type);
                 }
 
-                node.SymbolTable.AddEntry(name, "method", new FunctionType(parameters, funcHead.GetChildren()[2].Type), null);
+                var returnType = funcHead.GetChildren()[2].Type;
+
+                if (returnType != null)
+                {
+                    node.SymbolTable.AddEntry(name, "method", new FunctionType(parameters, returnType), null);
+                }
             }
 
             if (decl is CParamsNode cParams)
@@ -215,14 +229,14 @@ public class SymbolTableGeneratorVisitor : IVisitor
                 var parameters = new List<IJoCodeType>();
                 foreach (var parameter in cParams.GetChildren())
                 {
-                    if (parameter is not FParamNode)
+                    if (parameter is not FParamNode || parameter.Type == null)
                     {
                         continue;
                     }
 
                     parameters.Add(parameter.Type);
                 }
-                node.SymbolTable.AddEntry(node.SymbolTable.Name, "constructor", new FunctionType(parameters, new BaseType(node.SymbolTable.Name)), null);
+                node.SymbolTable.AddEntry(node.SymbolTable.Name, "constructor", new FunctionType(parameters, BaseType.GetBaseType(node.SymbolTable.Name)), null);
             }
         }
     }
@@ -246,14 +260,14 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
             var funcHead = funcDef.GetChildren()[0];
             
-            if (funcHead is FuncHeadNode funcHeadNode)
+            if (funcHead is FuncHeadNode)
             {
                 var funcHeadChildren = funcHead.GetChildren();
 
                 var parameters = new List<IJoCodeType>();
                 foreach (var parameter in funcHeadChildren[1].GetChildren())
                 {
-                    if (parameter is not FParamNode)
+                    if (parameter is not FParamNode || parameter.Type == null)
                     {
                         continue;
                     }
@@ -261,7 +275,11 @@ public class SymbolTableGeneratorVisitor : IVisitor
                     parameters.Add(parameter.Type);
                 }
 
-                node.SymbolTable.AddEntry(funcHeadChildren[0].Label, "method", new FunctionType(parameters, funcHead.GetChildren()[2].Type), funcDef.SymbolTable);
+                var returnType = funcHead.GetChildren()[2].Type;
+                if (returnType != null)
+                {
+                    node.SymbolTable.AddEntry(funcHeadChildren[0].Label, "method", new FunctionType(parameters, returnType), funcDef.SymbolTable);
+                }
             }
 
             if (funcHead is CParamsNode cParams)
@@ -269,7 +287,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
                 var parameters = new List<IJoCodeType>();
                 foreach (var parameter in cParams.GetChildren())
                 {
-                    if (parameter is not FParamNode)
+                    if (parameter is not FParamNode || parameter.Type == null)
                     {
                         continue;
                     }
@@ -278,7 +296,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
                 }
 
                 funcDef.SymbolTable.Name = node.SymbolTable.Name;
-                node.SymbolTable.AddEntry(node.SymbolTable.Name, "constructor", new FunctionType(parameters, new BaseType(node.SymbolTable.Name)), funcDef.SymbolTable);
+                node.SymbolTable.AddEntry(node.SymbolTable.Name, "constructor", new FunctionType(parameters, BaseType.GetBaseType(node.SymbolTable.Name)), funcDef.SymbolTable);
             }
         }
     }

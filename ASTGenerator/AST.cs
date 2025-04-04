@@ -770,7 +770,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
 
                     if (mainEntry != default(Entry))
                     {
-                        type = ((FunctionType)mainEntry.Type).ReturnType;
+                        type = ((FunctionType)mainEntry.Type!).ReturnType;
                         return;
                     }
                 }
@@ -815,7 +815,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
 
                     if (mainEntry != default(Entry))
                     {
-                        // TODO
+                        type = mainEntry.Type;
                         kind = mainEntry.Kind;
                         return;
                     }
