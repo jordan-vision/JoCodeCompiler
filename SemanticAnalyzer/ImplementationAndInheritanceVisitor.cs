@@ -100,9 +100,9 @@ class ImplementationAndInheritanceVisitor : IVisitor
 
                 foreach (var entry in child.SymbolTable.GetEntriesOfKind("method").Union(child.SymbolTable.GetEntriesOfKind("constructor")))
                 {
-                    if (!classTable.DoesEntryExist(entry.Name, entry.Kind))
+                    if (!classTable.DoesEntryExist(entry.Name, entry.Kind) && entry.Type != null)
                     {
-                        SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {entry.Kind} {classTable.Name}::{entry.Name} -> {entry.Type}.", child.Position);
+                        SemanticAnalyzer.WriteSemanticError($"Implementing the non-existent class {entry.Kind} {classTable.Name}::{entry.Name} -> {entry.Type.Label}.", child.Position);
                         continue;
                     }
 
@@ -165,9 +165,9 @@ class ImplementationAndInheritanceVisitor : IVisitor
 
             foreach (var entry in parentClassTable.Entries)
             {
-                if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind))
+                if (node.SymbolTable.DoesEntryExist(entry.Name, entry.Kind) && entry.Type != null)
                 {
-                    SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type}", node.Position);
+                    SemanticAnalyzer.WriteWarning($"Class {entry.Kind} {node.SymbolTable.Name}::{entry.Name} -> {entry.Type.Label} shadows {parentClassTable.Name}::{entry.Name} -> {entry.Type.Label}", node.Position);
                 } 
                 else
                 {

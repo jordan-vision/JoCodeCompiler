@@ -747,16 +747,18 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
         {
             kind = "functioncall";
 
-            var typePrefix = "";
+            var parameterTypes = new List<string>();
             foreach (var param in paramsNode.GetChildren())
             {
-                if (param is EpsilonNode)
+                if (param is EpsilonNode || param.Type == null)
                 {
                     continue;
                 }
 
-                typePrefix += typePrefix == "" ? $"{param.Type}" : $", {param.Type}";
+                parameterTypes.Add(param.Type.Label);
             }
+
+            var joinedParameters = parameterTypes.Count == 0 ? "" : String.Join(", ", parameterTypes);
 
             AST? currentNode = scope;
 
@@ -766,7 +768,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                 {
                     var relevantEntries = currentNode.SymbolTable.GetEntriesWithName(children[0].Label);
                     relevantEntries = [.. relevantEntries.Where(e => e.Kind == "function" || e.Kind == "method" || e.Kind == "constructor")];
-                    var mainEntry = relevantEntries.FirstOrDefault(e => e.Type is FunctionType f && f.ParameterTypes() == typePrefix);
+                    var mainEntry = relevantEntries.FirstOrDefault(e => e.Type is FunctionType f && f.ParameterTypes() == joinedParameters);
 
                     if (mainEntry != default(Entry))
                     {
@@ -815,7 +817,19 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
 
                     if (mainEntry != default(Entry))
                     {
-                        type = mainEntry.Type;
+                        var newType = mainEntry.Type;
+
+                        for (int i = 0; i < indices; i++)
+                        {
+                            if (newType == null)
+                            {
+                                newType = null;
+                                break;
+                            }
+                            newType = ((IndicedType)newType).BaseType;
+                        }
+
+                        type = newType;
                         kind = mainEntry.Kind;
                         return;
                     }

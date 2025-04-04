@@ -59,7 +59,7 @@ class SemanticCheckVisitor : IVisitor
 
         if (operands[0].Type!.Label != operands[1].Type!.Label)
         {
-            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on types {operands[0].Type} and {operands[1].Type}.", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on types {operands[0].Type!.Label} and {operands[1].Type!.Label}.", node.Position);
         }
         else if (operands[0].Type!.Label == "int" || operands[0].Type!.Label == "float" || operands[0].Type!.Label == "bool")
         {
@@ -68,7 +68,7 @@ class SemanticCheckVisitor : IVisitor
         } 
         else
         {
-            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operands[0].Type}.", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operands[0].Type!.Label}.", node.Position);
         }
     }
 
@@ -83,7 +83,7 @@ class SemanticCheckVisitor : IVisitor
 
         if (operands[0].Type!.Label != operands[1].Type!.Label)
         {
-            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on types {operands[0].Type} and {operands[1].Type}.", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on types {operands[0].Type!.Label} and {operands[1].Type!.Label}.", node.Position);
         }
         else if (operands[0].Type!.Label == "int" || operands[0].Type!.Label == "float" || operands[0].Type!.Label == "bool")
         {
@@ -92,7 +92,7 @@ class SemanticCheckVisitor : IVisitor
         }
         else
         {
-            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operands[0].Type}.", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operands[0].Type!.Label}.", node.Position);
         }
     }
 
@@ -274,7 +274,7 @@ class SemanticCheckVisitor : IVisitor
 
         if (funcReturnType.Label != thisReturnType.Label)
         {
-            SemanticAnalyzer.WriteSemanticError($"Function should return a value of type {funcReturnType} but instead returns a value of type {thisReturnType}.", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Function should return a value of type {funcReturnType.Label} but instead returns a value of type {thisReturnType.Label}.", node.Position);
         }
     }
 
@@ -313,7 +313,7 @@ class SemanticCheckVisitor : IVisitor
         }
         else
         {
-            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operand.Type}", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Cannot use {node.Label} operator on type {operand.Type.Label}", node.Position);
         }
     }
 
@@ -334,8 +334,6 @@ class SemanticCheckVisitor : IVisitor
 
     public void Visit(VarNode node)
     {
-        // TODO get node type
-
         if (node.Type != null && node.Kind != "")
         {
             return;
@@ -466,7 +464,7 @@ class SemanticCheckVisitor : IVisitor
 
         if (operands[0].Type != operands[1].Type)
         {
-            SemanticAnalyzer.WriteSemanticError($"Cannot assign value of type {operands[1].Type} to a variable of type {operands[0].Type}.", node.Position);
+            SemanticAnalyzer.WriteSemanticError($"Cannot assign value of type {operands[1].Type!.Label} to a variable of type {operands[0].Type!.Label}.", node.Position);
         }
     }
 

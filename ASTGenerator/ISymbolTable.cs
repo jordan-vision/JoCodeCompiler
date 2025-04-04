@@ -10,6 +10,8 @@ public interface ISymbolTable
 
     AST ASTNode { get; }
 
+    int Size { get; }
+
     void AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link);
 
     bool DoesEntryExist(string name, string kind);
@@ -28,7 +30,7 @@ public interface ISymbolTable
 
     string GetString(int indent);
 
-    void ComputeSize();
+    void ComputeEntrySizesAndOffsets();
 }
 
 public class Entry(string name, string kind, IJoCodeType? type, ISymbolTable? link)

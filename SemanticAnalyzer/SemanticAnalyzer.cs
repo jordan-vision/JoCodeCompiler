@@ -30,6 +30,9 @@ public class SemanticAnalyzer
 
         symbolTableWriter = new(symbolTableStream);
         semanticErrorsWriter = new(semanticErrorsStream);
+
+        isProgramValid = true;
+        TagManager.Reset();
     }
 
     public static void TraverseAST()
@@ -38,10 +41,10 @@ public class SemanticAnalyzer
         SemanticStack.Traverse(new ImplementationAndInheritanceVisitor());
         SemanticStack.Traverse(new SemanticCheckVisitor());
 
-        if (isProgramValid)
-        {
+        //if (isProgramValid)
+        //{
             SemanticStack.Traverse(new MemoryManagerVisitor());
-        }
+        //}
 
         symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
 

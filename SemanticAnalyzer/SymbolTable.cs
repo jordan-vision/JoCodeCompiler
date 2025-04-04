@@ -8,7 +8,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     private string name = name;
     private List<Entry> entries = [];
     private AST astNode = astNode;
-    private int size;
+    private int size = 0;
 
     public string Name { get { return name; } set { name = value; } }
 
@@ -56,7 +56,7 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
     public Entry? GetEntry(string name, string kind, IJoCodeType? type)
     {
-        var returnValue = entries.FirstOrDefault(e => e.Name == name && e.Kind == kind && e.Type == type);
+        var returnValue = entries.FirstOrDefault(e => e.Name == name && e.Kind == kind && e.Type?.Label == type?.Label);
         return returnValue == default(Entry) ? null : returnValue;
     }
 
@@ -97,16 +97,17 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         }
 
         returnValue += prefix + "====\n";
-        returnValue += prefix + $"TABLE: {name}\n";
+        returnValue += prefix + $"TABLE: {name}";
+        returnValue += size == 0 ? "\n" : $"\tsize: {size}\n";
         returnValue += prefix + "----\n";
 
-        foreach(var entry in entries)
+        foreach (var entry in entries)
         {
             returnValue += prefix + $"| {entry.Name}\t{entry.Kind}";
 
             if (entry.Type != null)
             {
-                returnValue += $"\t{ entry.Type.Label}\t{ entry.Type.Size}";
+                returnValue += $"\t{entry.Type.Label}\t{entry.Type.Size}";
             }
 
             if (entry.Link == null)
@@ -124,12 +125,17 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         return returnValue;
     }
 
-    public void ComputeSize()
+    public void ComputeEntrySizesAndOffsets()
     {
         size = 0;
 
         foreach (var entry in entries.Where(e => e.Kind != "inherited" && e.Type != null))
         {
+            if (entry.Kind == "class" && entry.Link != null && entry.Link.Size == 0)
+            {
+                entry.Link.ComputeEntrySizesAndOffsets();
+            }
+
             size += entry.Type!.Size;
         }
     }

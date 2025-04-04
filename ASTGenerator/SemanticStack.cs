@@ -69,6 +69,7 @@ public class SemanticStack
 
     public static string? WriteSymbolTable()
     {
+        Console.Write(semanticStack.Peek().SymbolTable?.ToString());
         return semanticStack.Peek().SymbolTable?.ToString();
     }
 }

@@ -20,7 +20,7 @@ public class FunctionType : IJoCodeType
         this.returnType = returnType;
 
         label = $"({ParameterTypes()}):{returnType.Label}";
-        size = returnType.Size;
+        size = 4;
     }
 
     public string ParameterTypes()

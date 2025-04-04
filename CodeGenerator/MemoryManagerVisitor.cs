@@ -62,7 +62,8 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(SignNode node)
     {
-        return;
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.AddEntry(TagManager.NextVariable(), "tempvar", node.GetChildren()[0].Type, null);
     }
 
     public void Visit(IdOrSelfNode node)
@@ -72,7 +73,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(ProgramNode node)
     {
-        return;
+        node.SymbolTable?.ComputeEntrySizesAndOffsets();
     }
 
     public void Visit(ParentsNode node)
@@ -92,7 +93,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(ClassDeclNode node)
     {
-        return;
+        node.SymbolTable?.ComputeEntrySizesAndOffsets();
     }
 
     public void Visit(FuncDefsNode node)
@@ -107,7 +108,7 @@ public class MemoryManagerVisitor : IVisitor
 
     public void Visit(FuncDefNode node)
     {
-        return;
+        node.SymbolTable?.ComputeEntrySizesAndOffsets();
     }
 
     public void Visit(FParamsNode node)

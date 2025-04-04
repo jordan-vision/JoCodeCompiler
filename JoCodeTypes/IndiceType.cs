@@ -2,8 +2,8 @@
 
 public class IndicedType(IJoCodeType baseType, int indice) : IJoCodeType
 {
-    private string label = baseType.Label + $"[{indice}]";
-    private int size = baseType.Size * indice;
+    private string label = baseType.Label + "[]";
+    private int size = indice == 0 ? baseType.Size : baseType.Size * indice;
 
     private IJoCodeType baseType = baseType;
     private int indice = indice;
@@ -11,4 +11,6 @@ public class IndicedType(IJoCodeType baseType, int indice) : IJoCodeType
     public string Label => label;
 
     public int Size => size;
+
+    public IJoCodeType BaseType => baseType;
 }

@@ -22,12 +22,12 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
     public void Visit(TypeNode node)
     {
-        node.Type = node.Label == "float" ? BaseType.Float : BaseType.GetBaseType(node.Label);
+        node.Type = BaseType.GetBaseType(node.Label);
     }
 
     public void Visit(ReturnTypeNode node)
     {
-        node.Type = node.Label == "float" ? BaseType.Float : BaseType.GetBaseType(node.Label);
+        node.Type = BaseType.GetBaseType(node.Label);
     }
 
     public void Visit(IntLitNode node)
@@ -174,27 +174,7 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
             if (decl is VarDeclNode)
             {
-                var varDecl = decl.GetChildren();
-                var type = varDecl[1].Type;
-                var arraySizes = (ArraySizesNode)varDecl[2];
-
-                if (type == null)
-                {
-                    return;
-                }
-
-                foreach (var arraySize in arraySizes.GetChildren())
-                {
-                    if (arraySize is EpsilonNode)
-                    {
-                        continue;
-                    }
-
-                    var validInteger = Int32.TryParse(arraySize.Label, out var indice);
-                    type = new IndicedType(type, validInteger ? indice : 0);
-                }
-
-                node.SymbolTable.AddEntry(varDecl[0].Label, "attribute", type, null);
+                node.SymbolTable.AddEntry(decl.GetChildren()[0].Label, "attribute", decl.Type, null);
             }
 
             if (decl is FuncHeadNode funcHead)
@@ -365,7 +345,26 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
     public void Visit(VarDeclNode node)
     {
-        node.Type = node.GetChildren()[1].Type;
+        var type = node.GetChildren()[1].Type;
+        var arraySizes = (ArraySizesNode)node.GetChildren()[2];
+
+        if (type == null)
+        {
+            return;
+        }
+
+        foreach (var arraySize in arraySizes.GetChildren())
+        {
+            if (arraySize is EpsilonNode)
+            {
+                continue;
+            }
+
+            var validInteger = Int32.TryParse(arraySize.Label, out var indice);
+            type = new IndicedType(type, validInteger ? indice : 0);
+        }
+
+        node.Type = type;
     }
 
     public void Visit(IfStatNode node)
@@ -435,7 +434,26 @@ public class SymbolTableGeneratorVisitor : IVisitor
 
     public void Visit(FParamNode node)
     {
-        node.Type = node.GetChildren()[1].Type;
+        var type = node.GetChildren()[1].Type;
+        var arraySizes = (ArraySizesNode)node.GetChildren()[2];
+
+        if (type == null)
+        {
+            return;
+        }
+
+        foreach (var arraySize in arraySizes.GetChildren())
+        {
+            if (arraySize is EpsilonNode)
+            {
+                continue;
+            }
+
+            var validInteger = Int32.TryParse(arraySize.Label, out var indice);
+            type = new IndicedType(type, validInteger ? indice : 0);
+        }
+
+        node.Type = type;
     }
 
     public void Visit(AssignNode node)

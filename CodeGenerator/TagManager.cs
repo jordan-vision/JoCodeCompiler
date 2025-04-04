@@ -8,4 +8,9 @@ public class TagManager
     {
         return $"t{nextTag++}";
     }
+
+    public static void Reset()
+    {
+        nextTag = 1;
+    }
 }
