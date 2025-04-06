@@ -9,6 +9,9 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
     private List<Entry> entries = [];
     private AST astNode = astNode;
     private int size = 0, nextVariable = 1;
+    private bool finalTable = false;
+
+    private static AST? mainFunctionNode;
 
     public string Name { get { return name; } set { name = value; } }
 
@@ -18,7 +21,9 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
     public int Size => size;
 
-    public void AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link)
+    public static AST? MainFunctionNode { get { return mainFunctionNode; } set { mainFunctionNode = value; } }
+
+    public void AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link, AST? node = null)
     {
         if (IsEntryDuplicate(name, kind, type))
         {
@@ -27,6 +32,12 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         }
 
         var newEntry = new Entry(name, kind, type, link);
+
+        if (node != null)
+        {
+            node.SymbolTableEntry = newEntry;
+        }
+
         entries.Add(newEntry);
     }
 
@@ -118,14 +129,39 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
     public void ComputeSizeAndOffsets()
     {
+        if (finalTable)
+        {
+            return;
+        }
+
         size = 0;
         var totalOffset = 0;
 
         foreach (var entry in entries.Where(e => e.Kind != "inherited" && e.Type != null))
         {
-            if (entry.Link != null && entry.Link.Size == 0)
+            if (entry.Type is BaseType || entry.Type is IndicedType)
             {
-                entry.Link.ComputeSizeAndOffsets();
+                BaseType? baseType = null;
+
+                if (entry.Type is BaseType type)
+                {
+                    baseType = type;
+                } 
+                else if (entry.Type is IndicedType type2)
+                {
+                    baseType = (BaseType)type2.OriginalBaseType();
+                }
+
+                if (baseType != null)
+                {
+                    var typeTable = astNode.GetRootNode().SymbolTable?.GetEntry(baseType.Label, "class", null)?.Link;
+
+                    if (typeTable != null)
+                    {
+                        typeTable.ComputeSizeAndOffsets();
+                        baseType.ChangeSize(typeTable.Size);
+                    }
+                }
             }
 
             entry.LocalOffset = totalOffset;
@@ -133,6 +169,8 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
             totalOffset -= entry.Type!.Size;
             size += entry.Type!.Size;
         }
+
+        finalTable = true;
     }
 
     public void AddEntryFirst(string name, string kind, IJoCodeType? type, ISymbolTable? link)
@@ -146,8 +184,8 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         entries.Insert(0, new(name, kind, type, link));
     }
 
-    public void GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link)
+    public void GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link, AST? node = null)
     {
-        AddEntry($"t{nextVariable++}", kind, type, link);
+        AddEntry($"t{nextVariable++}", kind, type, link, node);
     }
 }

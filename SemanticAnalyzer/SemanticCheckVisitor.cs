@@ -22,30 +22,59 @@ class SemanticCheckVisitor : IVisitor
 
     public void Visit(TypeNode node)
     {
-        return;
+        if (node.Type == null || node.Type.Label == "int" || node.Type.Label == "float")
+        {
+            return;
+        }
+
+        var classEntry = node.GetRootNode().SymbolTable?.GetEntry(node.Type.Label, "class", null);
+
+        if (classEntry == null)
+        {
+            SemanticAnalyzer.WriteSemanticError($"Type {node.Type.Label} does not exist.", node.Position);
+        }
     }
 
     public void Visit(ReturnTypeNode node)
     {
-        return;
+        if (node.Type == null || node.Type.Label == "int" || node.Type.Label == "float" || node.Type.Label == "void")
+        {
+            return;
+        }
+
+        var classEntry = node.GetRootNode().SymbolTable?.GetEntry(node.Type.Label, "class", null);
+
+        if (classEntry == null)
+        {
+            SemanticAnalyzer.WriteSemanticError($"Type {node.Type.Label} does not exist.", node.Position);
+        }
     }
 
     public void Visit(IntLitNode node)
     {
         node.Type = BaseType.Int;
         node.Kind = "constant";
+
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.GenerateEntry("intlit", BaseType.Int, null, node);
     }
 
     public void Visit(FloatLitNode node)
     {
         node.Type = BaseType.Float;
         node.Kind = "constant";
+
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.GenerateEntry("floatlit", BaseType.Float, null);
     }
 
     public void Visit(RelOpNode node)
     {
         node.Type = BaseType.Bool;
         node.Kind = "operator";
+
+        var scopeSymbolTable = node.FindSmallestScope();
+        scopeSymbolTable?.GenerateEntry("bool", BaseType.Bool, null);
     }
 
     public void Visit(AddOpNode node)
@@ -65,6 +94,9 @@ class SemanticCheckVisitor : IVisitor
         {
             node.Type = operands[0].Type;
             node.Kind = "operator";
+
+            var scopeSymbolTable = node.FindSmallestScope();
+            scopeSymbolTable?.GenerateEntry("tempvar", node.GetChildren()[0].Type, null);
         } 
         else
         {
@@ -89,6 +121,9 @@ class SemanticCheckVisitor : IVisitor
         {
             node.Type = operands[0].Type;
             node.Kind = "operator";
+
+            var scopeSymbolTable = node.FindSmallestScope();
+            scopeSymbolTable?.GenerateEntry("tempvar", node.GetChildren()[0].Type, null);
         }
         else
         {
@@ -109,6 +144,9 @@ class SemanticCheckVisitor : IVisitor
         {
             node.Type = operand.Type;
             node.Kind = operand.Kind;
+
+            var scopeSymbolTable = node.FindSmallestScope();
+            scopeSymbolTable?.GenerateEntry("tempvar", node.GetChildren()[0].Type, null);
         } 
         else if (operand.Type != null)
         {

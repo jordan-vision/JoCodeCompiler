@@ -50,7 +50,7 @@ public class LexicalAnalyzer
     /// <returns>The proper token data structure </returns>
     public static Token? NextToken()
     {
-        if (inFile == null || inFile.EndOfStream)
+        if (inFile == null || (inFile.EndOfStream && backedUpCharacter == null))
         {
             inFile?.Close();
             tokenWriter?.Close();

@@ -21,4 +21,16 @@ public class CodeGenerator
         moonStream = File.Create(Path.Combine(outputDirectory, outastFilename));
         moonWriter = new(moonStream);
     }
+
+    public static string MoonCodeLine(string symbol, string opCode, List<string> operands, string comment)
+    {
+        var line = "";
+        line += symbol == "" ? "" : symbol;
+        line += $"\t{opCode}";
+        line += operands.Count == 0 ? "\t\t" : $"\t\t{String.Join(",", operands)}";
+        line += comment == "" ? "\t" : $"\t%{comment}";
+        line += "\n";
+
+        return line;
+    }
 }

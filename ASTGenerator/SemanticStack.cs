@@ -72,4 +72,9 @@ public class SemanticStack
         Console.Write(semanticStack.Peek().SymbolTable?.ToString());
         return semanticStack.Peek().SymbolTable?.ToString();
     }
+
+    public static void GenerateCode(IVisitor visitor)
+    {
+        ISymbolTable.MainFunctionNode?.Accept(visitor);
+    }
 }

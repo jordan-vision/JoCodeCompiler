@@ -15,11 +15,11 @@ public class BaseType : IJoCodeType
 
     public static BaseType Bool = new() { label = "bool" };
 
-    public static Dictionary<string, BaseType> existingTypes = new() { {"int", Int}, { "float", Float }, { "bool", Bool } };
+    public static Dictionary<string, BaseType> ExistingTypes = new() { { "int", Int }, { "float", Float }, { "bool", Bool } };
 
     public static BaseType GetBaseType(string label)
     {
-        if (existingTypes.TryGetValue(label, out var type))
+        if (ExistingTypes.TryGetValue(label, out var type))
         {
             return type;
         }
@@ -27,8 +27,13 @@ public class BaseType : IJoCodeType
         else
         {
             var newType = new BaseType() { label = label };
-            existingTypes.Add(label, newType);
+            ExistingTypes.Add(label, newType);
             return newType;
         }
+    }
+
+    public void ChangeSize(int newSize)
+    {
+        size = newSize;
     }
 }

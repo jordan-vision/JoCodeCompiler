@@ -9,7 +9,7 @@ public class FunctionType : IJoCodeType
     private IJoCodeType returnType;
 
     public string Label => label;
-    
+
     public int Size => size;
 
     public IJoCodeType ReturnType => returnType;

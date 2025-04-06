@@ -7,6 +7,7 @@ public abstract class AST
     private AST leftmostSibling;
     private AST? parent = null, rightSibling = null;
     private (int, int) positionInFile;
+    private string moonCode = "";
 
     protected AST? leftmostChild = null;
     protected string label, kind = "";
@@ -17,6 +18,8 @@ public abstract class AST
     public AST? Parent => parent;
 
     public (int, int) Position => positionInFile;
+
+    public string MoonCode { get { return moonCode; } set { moonCode = value; } }
 
     public string Label => label;
 

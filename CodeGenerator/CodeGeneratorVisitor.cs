@@ -2,7 +2,7 @@
 
 namespace CodeGenerator;
 
-class CodeGeneratorVisitor : IVisitor
+public class CodeGeneratorVisitor : IVisitor
 {
     public void Visit(EpsilonNode node)
     {
@@ -101,7 +101,17 @@ class CodeGeneratorVisitor : IVisitor
 
     public void Visit(FuncDefNode node)
     {
-        return;
+        var (head, body) = (node.GetChildren()[0], node.GetChildren()[1]);
+        if (head.GetChildren()[0].Label == "main")
+        {
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "entry", [], "Start here");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", ["r14", "r0", "topaddr"], "");
+        }
+
+        foreach (var child in body.GetChildren())
+        {
+            node.MoonCode += child.MoonCode;
+        }
     }
 
     public void Visit(FParamsNode node)
@@ -131,7 +141,6 @@ class CodeGeneratorVisitor : IVisitor
 
     public void Visit(VarDeclNode node)
     {
-        // Check if vardecl a class
         return;
     }
 
@@ -207,6 +216,7 @@ class CodeGeneratorVisitor : IVisitor
 
     public void Visit(AssignNode node)
     {
+        // Here!
         return;
     }
 

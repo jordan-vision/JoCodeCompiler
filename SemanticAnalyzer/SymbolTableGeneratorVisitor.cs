@@ -122,14 +122,18 @@ public class SymbolTableGeneratorVisitor : IVisitor
             }
         }
 
-        var mainFunctions = node.SymbolTable.GetEntriesOfKind("main function").Count;
-        if (mainFunctions == 0)
+        var mainFunctions = node.SymbolTable.GetEntriesOfKind("main function");
+        if (mainFunctions.Count == 0)
         {
             SemanticAnalyzer.WriteSemanticError("No main function.", node.Position);
         } 
-        else if (mainFunctions > 1)
+        else if (mainFunctions.Count > 1)
         {
             SemanticAnalyzer.WriteSemanticError("Multiple main functions.", node.Position);
+        } 
+        else
+        {
+            ISymbolTable.MainFunctionNode = mainFunctions[0].Link?.ASTNode;
         }
     }
 
