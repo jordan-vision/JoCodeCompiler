@@ -23,22 +23,17 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
 
     public static AST? MainFunctionNode { get { return mainFunctionNode; } set { mainFunctionNode = value; } }
 
-    public void AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link, AST? node = null)
+    public Entry? AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link)
     {
         if (IsEntryDuplicate(name, kind, type))
         {
             SemanticAnalyzer.WriteSemanticError($"Multiple definitions of the {kind} {name}.", astNode.Position);
-            return;
+            return null;
         }
 
         var newEntry = new Entry(name, kind, type, link);
-
-        if (node != null)
-        {
-            node.SymbolTableEntry = newEntry;
-        }
-
         entries.Add(newEntry);
+        return newEntry;
     }
 
     public bool DoesEntryExist(string name, string kind)
@@ -184,8 +179,8 @@ public class SymbolTable(string name, AST astNode) : ISymbolTable
         entries.Insert(0, new(name, kind, type, link));
     }
 
-    public void GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link, AST? node = null)
+    public Entry? GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link)
     {
-        AddEntry($"t{nextVariable++}", kind, type, link, node);
+        return AddEntry($"t{nextVariable++}", kind, type, link);
     }
 }

@@ -43,10 +43,9 @@ public class SemanticAnalyzer
         //if (isProgramValid)
         //{
             SemanticStack.Traverse(new MemoryManagerVisitor());
+            symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
             SemanticStack.GenerateCode(new CodeGeneratorVisitor());
         //}
-
-        symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
 
         symbolTableWriter?.Close();
         semanticErrorsWriter?.Close();

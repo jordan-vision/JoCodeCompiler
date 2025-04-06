@@ -778,6 +778,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
 
                     if (mainEntry != default(Entry))
                     {
+                        symbolTableEntry = mainEntry;
                         type = ((FunctionType)mainEntry.Type!).ReturnType;
                         return;
                     }
@@ -835,6 +836,7 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                             newType = ((IndicedType)newType).BaseType;
                         }
 
+                        symbolTableEntry = mainEntry;
                         type = newType;
                         kind = mainEntry.Kind;
                         return;

@@ -1,9 +1,20 @@
 ﻿using ASTGenerator;
+using JoCodeTypes;
 
 namespace CodeGenerator;
 
 public class CodeGeneratorVisitor : IVisitor
 {
+    private Stack<string> availableRegisters = new();
+
+    public CodeGeneratorVisitor()
+    {
+        for (var i = 13; i > 0; i--)
+        {
+            availableRegisters.Push($"r{i}");
+        }
+    }
+
     public void Visit(EpsilonNode node)
     {
         return;
@@ -31,7 +42,18 @@ public class CodeGeneratorVisitor : IVisitor
 
     public void Visit(IntLitNode node)
     {
-        return;
+        if (node.SymbolTableEntry == null)
+        {
+            return;
+        }
+
+        var offset = node.SymbolTableEntry.LocalOffset;
+        var register = availableRegisters.Pop();
+
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [register, "r0", node.Label], "");
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "sw", [$"{offset}(r14)", register], "");
+
+        availableRegisters.Push(register);
     }
 
     public void Visit(FloatLitNode node)
@@ -201,7 +223,46 @@ public class CodeGeneratorVisitor : IVisitor
 
     public void Visit(VarNode node)
     {
-        return;
+        if (node.SymbolTableEntry == null)
+        {
+            return;
+        }
+
+        var offset = node.SymbolTableEntry.LocalOffset;
+        var currentType = node.SymbolTableEntry.Type;
+
+        var offsetRegister = availableRegisters.Pop();
+        var indiceRegister = availableRegisters.Pop();
+        var sizeRegister = availableRegisters.Pop();
+        var adressRegister = availableRegisters.Pop();
+
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [offsetRegister, "r0", $"{offset}"], "");
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "add", [offsetRegister, offsetRegister, "r14"], "");
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [sizeRegister, "r0", "1"], "");
+
+        foreach (var indice in node.GetChildren()[1].GetChildren())
+        {
+            node.MoonCode += indice.MoonCode;
+
+            if (indice.SymbolTableEntry == null || currentType is not IndicedType)
+            {
+                continue;
+            }
+
+            currentType = ((IndicedType)currentType).BaseType;
+
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [adressRegister, $"{indice.SymbolTableEntry.LocalOffset}(r14)"], "");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "add", [indiceRegister, "r0", adressRegister], "");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "muli", [sizeRegister, indiceRegister, currentType.Size.ToString()], "");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "sub", [offsetRegister, offsetRegister, sizeRegister], "");
+        }
+
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "sw", [$"{offset}(r14)", offsetRegister], "");
+
+        availableRegisters.Push(adressRegister);
+        availableRegisters.Push(sizeRegister);
+        availableRegisters.Push(indiceRegister);
+        availableRegisters.Push(offsetRegister);
     }
 
     public void Visit(DotNode node)
@@ -216,7 +277,22 @@ public class CodeGeneratorVisitor : IVisitor
 
     public void Visit(AssignNode node)
     {
-        // Here!
+        var varNode = node.GetChildren()[0];
+        var exprNode = node.GetChildren()[1];
+
+        if (varNode.SymbolTableEntry == null || exprNode.SymbolTableEntry == null)
+        {
+            return;
+        }
+
+        var exprRegister = availableRegisters.Pop();
+        var exprOffset = exprNode.SymbolTableEntry.LocalOffset;
+
+        node.MoonCode += exprNode.MoonCode;
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [exprRegister, $"{exprOffset}(r14)"], "");
+        node.MoonCode += varNode.MoonCode;
+
+        availableRegisters.Push(exprRegister);
         return;
     }
 

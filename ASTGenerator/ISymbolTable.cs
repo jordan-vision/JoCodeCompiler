@@ -14,7 +14,7 @@ public interface ISymbolTable
 
     static AST? MainFunctionNode { get; set; }
 
-    void AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link, AST? node = null);
+    Entry? AddEntry(string name, string kind, IJoCodeType? type, ISymbolTable? link);
 
     bool DoesEntryExist(string name, string kind);
 
@@ -36,7 +36,7 @@ public interface ISymbolTable
 
     void AddEntryFirst(string name, string kind, IJoCodeType? type, ISymbolTable? link);
 
-    void GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link, AST? node = null);
+    Entry? GenerateEntry(string kind, IJoCodeType? type, ISymbolTable? link);
 }
 
 public class Entry(string name, string kind, IJoCodeType? type, ISymbolTable? link)
