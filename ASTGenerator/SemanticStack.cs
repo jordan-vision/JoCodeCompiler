@@ -73,8 +73,8 @@ public class SemanticStack
         return semanticStack.Peek().SymbolTable?.ToString();
     }
 
-    public static void GenerateCode(IVisitor visitor)
+    public static string WriteMoonCode()
     {
-        ISymbolTable.MainFunctionNode?.Accept(visitor);
+        return semanticStack.Peek().MoonCode;
     }
 }

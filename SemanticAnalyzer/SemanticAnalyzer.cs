@@ -44,8 +44,9 @@ public class SemanticAnalyzer
         //{
             SemanticStack.Traverse(new MemoryManagerVisitor());
             symbolTableWriter?.Write(SemanticStack.WriteSymbolTable());
-            SemanticStack.GenerateCode(new CodeGeneratorVisitor());
+            SemanticStack.Traverse(new CodeGeneratorVisitor());
         //}
+        CodeGenerator.CodeGenerator.WriteMoonCode(SemanticStack.WriteMoonCode());
 
         symbolTableWriter?.Close();
         semanticErrorsWriter?.Close();

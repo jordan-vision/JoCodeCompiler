@@ -506,7 +506,7 @@ class SemanticCheckVisitor : IVisitor
             SemanticAnalyzer.WriteSemanticError("Cannot assign value to a fucntion call.", node.Position);
         }
 
-        if (operands[0].Type != operands[1].Type)
+        if (operands[0].Type!.Label != operands[1].Type!.Label)
         {
             SemanticAnalyzer.WriteSemanticError($"Cannot assign value of type {operands[1].Type!.Label} to a variable of type {operands[0].Type!.Label}.", node.Position);
         }
