@@ -287,7 +287,7 @@ public class CodeGeneratorVisitor : IVisitor
 
         node.MoonCode += $"%====FUNCTION END: {functionName}====\n\n";
 
-        if (head.GetChildren()[0].Label == "main")
+        if (functionName == "main")
         {
             node.MoonCode += CodeGenerator.MoonCodeLine("", "hlt", [], "End here");
             node.MoonCode += CodeGenerator.MoonCodeLine("buf", "res", ["20"], "");
@@ -456,7 +456,7 @@ public class CodeGeneratorVisitor : IVisitor
 
     public void Visit(VarNode node)
     {
-        if (node.SymbolTableEntry == null)
+        if (node.SymbolTableEntry == null || node.Reference == null)
         {
             return;
         }
@@ -466,14 +466,15 @@ public class CodeGeneratorVisitor : IVisitor
             node.MoonCode += indice.MoonCode;
         }
 
-        var varOffset = node.SymbolTableEntry.LocalOffset;
+        var varOffset = node.Reference.LocalOffset;
         var currentType = node.SymbolTableEntry.Type;
 
+        var offsetRegister = availableRegisters.Pop();
         var sizeRegister = availableRegisters.Pop();
         var indiceRegister = availableRegisters.Pop();
 
-        node.MoonCode += CodeGenerator.MoonCodeLine("", "add", ["r13", "r0", "r14"], $"{node.Position}: Finding adress of {node.SymbolTableEntry.Name}");
-        node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", ["r13", "r13", $"{varOffset}"], "");
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [offsetRegister, "r0", $"{varOffset}"], $"{node.Position}: Finding value of {node.SymbolTableEntry.Name}");
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "add", [offsetRegister, offsetRegister, "r14"], "");
         node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [sizeRegister, "r0", "1"], "");
 
         foreach (var indice in node.GetChildren()[1].GetChildren())
@@ -487,11 +488,14 @@ public class CodeGeneratorVisitor : IVisitor
 
             node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [indiceRegister, $"{indice.SymbolTableEntry.LocalOffset}(r14)"], $"{indice.Position}: Computing offset [{indice.SymbolTableEntry.Name}]");
             node.MoonCode += CodeGenerator.MoonCodeLine("", "muli", [sizeRegister, indiceRegister, currentType.Size.ToString()], "");
-            node.MoonCode += CodeGenerator.MoonCodeLine("", "sub", ["r13", "r13", sizeRegister], "");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "sub", [offsetRegister, offsetRegister, sizeRegister], "");
         }
+
+        node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [$"{node.SymbolTableEntry.LocalOffset}", $"0({offsetRegister})"], $"{node.Position}: Storing result of get in {node.SymbolTableEntry.Name}.");
 
         availableRegisters.Push(indiceRegister);
         availableRegisters.Push(sizeRegister);
+        availableRegisters.Push(offsetRegister);
     }
 
     public void Visit(DotNode node)
@@ -514,24 +518,55 @@ public class CodeGeneratorVisitor : IVisitor
             return;
         }
 
-        node.MoonCode += varNode.MoonCode;
         node.MoonCode += exprNode.MoonCode;
 
         var exprOffset = exprNode.SymbolTableEntry.LocalOffset;
         var exprRegister = availableRegisters.Pop();
 
-        var varName = varNode.SymbolTableEntry.Name;
-        foreach (var indice in varNode.GetChildren()[1].GetChildren())
+        if (varNode is VarNode varNode1)
         {
-            if (indice is not EpsilonNode)
+            if (varNode1.Reference == null)
             {
-                varName += "[]";
+                return;
             }
-        }
 
-        // TODO: do this for all elements in array
-        node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [$"{exprRegister}", $"{exprNode.SymbolTableEntry.LocalOffset}(r14)"], $"{node.Position}: Performing assignment {varName} := {exprNode.SymbolTableEntry.Name}");
-        node.MoonCode += CodeGenerator.MoonCodeLine("", "sw", [$"{varNode.SymbolTableEntry.LocalOffset}(r13)", $"{exprRegister}"], "");
+            foreach (var indice in varNode.GetChildren()[1].GetChildren())
+            {
+                node.MoonCode += indice.MoonCode;
+            }
+
+            var varOffset = varNode1.Reference.LocalOffset;
+            var currentType = varNode1.Reference.Type;
+
+            var offsetRegister = availableRegisters.Pop();
+            var sizeRegister = availableRegisters.Pop();
+            var indiceRegister = availableRegisters.Pop();
+
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [offsetRegister, "r0", $"{varOffset}"], $"{node.Position}: Finding address of {varNode.SymbolTableEntry.Name}");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "add", [offsetRegister, offsetRegister, "r14"], "");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "addi", [sizeRegister, "r0", "1"], "");
+
+            foreach (var indice in varNode.GetChildren()[1].GetChildren())
+            {
+                if (indice.SymbolTableEntry == null || currentType is not IndicedType)
+                {
+                    continue;
+                }
+
+                currentType = ((IndicedType)currentType).BaseType;
+
+                node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [indiceRegister, $"{indice.SymbolTableEntry.LocalOffset}(r14)"], $"{indice.Position}: Computing offset [{indice.SymbolTableEntry.Name}]");
+                node.MoonCode += CodeGenerator.MoonCodeLine("", "muli", [sizeRegister, indiceRegister, currentType.Size.ToString()], "");
+                node.MoonCode += CodeGenerator.MoonCodeLine("", "sub", [offsetRegister, offsetRegister, sizeRegister], "");
+            }
+
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "lw", [exprRegister, $"{exprOffset}(r14)"], $"{node.Position}: Performing assignment of {varNode.SymbolTableEntry.Name}");
+            node.MoonCode += CodeGenerator.MoonCodeLine("", "sw", [$"0({offsetRegister})", exprRegister], "");
+
+            availableRegisters.Push(indiceRegister);
+            availableRegisters.Push(sizeRegister);
+            availableRegisters.Push(offsetRegister);
+        }
 
         availableRegisters.Push(exprRegister);
     }

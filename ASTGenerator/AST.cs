@@ -733,6 +733,8 @@ public class NoParamsOrIndicesNode(string label, (int, int) positionInFile) : AS
 
 public class VarNode(string label, (int, int) positionInFile) : AST(label, positionInFile)
 {
+    public Entry? Reference;
+
     public VarNode() : this("var", (0, 0)) { }
 
     public override void Accept(IVisitor visitor)
@@ -778,8 +780,9 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
 
                     if (mainEntry != default(Entry))
                     {
-                        symbolTableEntry = mainEntry;
+                        Reference = mainEntry;
                         type = ((FunctionType)mainEntry.Type!).ReturnType;
+                        symbolTableEntry = FindSmallestScope()?.GenerateEntry("functionresult", type, null);
                         return;
                     }
                 }
@@ -836,9 +839,10 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                             newType = ((IndicedType)newType).BaseType;
                         }
 
-                        symbolTableEntry = mainEntry;
+                        Reference = mainEntry;
                         type = newType;
                         kind = mainEntry.Kind;
+                        symbolTableEntry = FindSmallestScope()?.GenerateEntry("varget", type, null);
                         return;
                     }
                 }
