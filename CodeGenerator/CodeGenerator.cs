@@ -36,6 +36,8 @@ public class CodeGenerator
 
     public static void WriteMoonCode(string code)
     {
+        moonWriter?.WriteLine("%Please run this file in the moon emulator in conjunction with util.moon.");
+        moonWriter?.WriteLine($"%To do so, run the command \"moon {Path.GetFileName(moonStream?.Name)} util.m\"\n");
         moonWriter?.Write(code);
         moonWriter?.Flush();
     }

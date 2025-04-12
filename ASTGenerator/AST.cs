@@ -842,7 +842,10 @@ public class VarNode(string label, (int, int) positionInFile) : AST(label, posit
                         Reference = mainEntry;
                         type = newType;
                         kind = mainEntry.Kind;
-                        symbolTableEntry = FindSmallestScope()?.GenerateEntry("varget", type, null);
+                        
+                        symbolTableEntry = Parent is AssignNode && Parent.GetChildren()[0] == this ?
+                            mainEntry : FindSmallestScope()?.GenerateEntry("varget", type, null);
+
                         return;
                     }
                 }
