@@ -1,6 +1,5 @@
 ﻿using ASTGenerator;
 using JoCodeTypes;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace CodeGenerator;
 
